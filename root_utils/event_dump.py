@@ -78,21 +78,21 @@ def dump_file(infile, outfile):
                 direction.append([tracks[i].GetDir(0), tracks[i].GetDir(1), tracks[i].GetDir(2)])
                 energy.append(tracks[i].GetE())
 
-        biggestTrigger = 0
-        biggestTriggerDigihits = 0
+        firstTrigger = 0
+        firstTriggerTime = 9999999.0
         for index in range(event.GetNumberOfEvents()):
             trigger = event.GetTrigger(index)
-            ncherenkovdigihits = trigger.GetNcherenkovdigihits()
-            if ncherenkovdigihits > biggestTriggerDigihits:
-                biggestTriggerDigihits = ncherenkovdigihits
-                biggestTrigger = index
+            triggerTime = min([hit.GetT() for hit in trigger.GetCherenkovDigiHits()])
+            if triggerTime < firstTriggerTime:
+                firstTriggerTime = triggerTime
+                firstTrigger = index
 
-        trigger = event.GetTrigger(biggestTrigger)
+        trigger = event.GetTrigger(firstTrigger)
 
         ncherenkovdigihits = trigger.GetNcherenkovdigihits()
 
         if ncherenkovdigihits == 0:
-            print("event, trigger has no hits " + str(ev) + " " + str(biggestTrigger))
+            print("event, trigger has no hits " + str(ev) + " " + str(firstTrigger))
             continue
 
         np_q = np.zeros(ncherenkovdigihits)
@@ -171,8 +171,6 @@ def dump_file(infile, outfile):
 
 
 if __name__ == '__main__':
-
-    print(os.environ['PATH'])
 
     ROOT.gSystem.Load(os.environ['WCSIMDIR'] + "/libWCSimRoot.so")
     config = get_args()
