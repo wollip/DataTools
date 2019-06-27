@@ -52,6 +52,7 @@ def dump_file(infile, outfile):
     positions = []
     directions = []
     energies = []
+    files = []
     Eth = {22: 0.786 * 2, 11: 0.786, -11: 0.786, 13: 158.7, -13: 158.7, 111: 0.786 * 4}
 
     # get first event and trigger to prevent segfault (as part of memory leak work around)
@@ -159,6 +160,7 @@ def dump_file(infile, outfile):
         energies.append(energy)
 
         ev_ids.append(ev)
+        files.append(infile)
 
     # Readying all data arrays for saving
     all_events = np.concatenate(ev_data)
@@ -167,9 +169,10 @@ def dump_file(infile, outfile):
     all_positions = np.asarray(positions)
     all_directions = np.asarray(directions)
     all_energies = np.asarray(energies)
-    all_ids = np.asarray(ev_ids, dtype=object)
+    all_ids = np.asarray(ev_ids)
+    all_files = np.asarray(files, dtype=object)
     np.savez_compressed(outfile, event_data=all_events, labels=all_labels, pids=all_pids, positions=all_positions,
-                        directions=all_directions, energies=all_energies, event_ids=all_ids, root_file=infile)
+                        directions=all_directions, energies=all_energies, event_ids=all_ids, root_files=all_files)
     file.Close()
 
 if __name__ == '__main__':
@@ -198,7 +201,7 @@ if __name__ == '__main__':
         if config.output_dir is None:
             output_file = os.path.splitext(input_file)[0] + '.npz'
         else:
-            output_file = config.output_dir + os.path.splitext(os.path.basename(input_file))[0] + '.npz'
+            output_file = os.path.join(config.output_dir,os.path.splitext(os.path.basename(input_file))[0] + '.npz')
 
         print("\nNow processing " + input_file)
         print("Outputting to " + output_file)
