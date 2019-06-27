@@ -1,7 +1,5 @@
 """
 Python 3 script for processing a list of ROOT files into .npz files
-Note: due to a memory leak bug in tree.GetEvent(idx), this script is currently
-non-tractable on large lists of ROOT files.
 
 To keep references to the original ROOT files, the file path is stored in the output.
 
