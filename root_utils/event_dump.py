@@ -55,16 +55,23 @@ def dump_file(infile, outfile):
     directions = []
     energies = []
     Eth = {22: 0.786 * 2, 11: 0.786, -11: 0.786, 13: 158.7, -13: 158.7, 111: 0.786 * 4}
+
+    # get first event and trigger to prevent segfault (as part of memory leak work around)
+    tree.GetEvent(0)
+    trigger = tree.wcsimrootevent.GetTrigger(0)
+
     for ev in range(nevent):
         # if ev%100 == 0:
         #    print("now processing event " +str(ev))
+
+        # Delete previous trigger to prevent memory leak
+        trigger.Delete()
 
         tree.GetEvent(ev)
         event = tree.wcsimrootevent
 
         # if ev%100 == 0:
         #    print("number of sub events: " + str(event.GetNumberOfEvents()))
-
         trigger = event.GetTrigger(0)
         tracks = trigger.GetTracks()
         energy = []
@@ -77,7 +84,6 @@ def dump_file(infile, outfile):
                 position.append([tracks[i].GetStart(0), tracks[i].GetStart(1), tracks[i].GetStart(2)])
                 direction.append([tracks[i].GetDir(0), tracks[i].GetDir(1), tracks[i].GetDir(2)])
                 energy.append(tracks[i].GetE())
-
         firstTrigger = 0
         firstTriggerTime = 9999999.0
         for index in range(event.GetNumberOfEvents()):
@@ -156,7 +162,6 @@ def dump_file(infile, outfile):
 
         ev_ids.append(ev)
 
-        event.ReInitialize()
     # Readying all data arrays for saving
     all_events = np.concatenate(ev_data)
     all_labels = np.asarray(labels)
@@ -168,7 +173,6 @@ def dump_file(infile, outfile):
     np.savez_compressed(outfile, event_data=all_events, labels=all_labels, pids=all_pids, positions=all_positions,
                         directions=all_directions, energies=all_energies, event_ids=all_ids, root_file=infile)
     file.Close()
-
 
 if __name__ == '__main__':
 
