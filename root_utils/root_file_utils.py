@@ -1,6 +1,8 @@
 import ROOT
+import os
 
 ROOT.gROOT.SetBatch(True)
+ROOT.gSystem.Load(os.environ['WCSIMDIR'] + "/libWCSimRoot.so")
 
 
 class WCSimFile:
