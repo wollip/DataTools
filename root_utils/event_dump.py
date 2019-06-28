@@ -10,13 +10,8 @@ Authors: Wojtek Fedorko, Julian Ding, Nick Prouse
 
 import argparse
 import os
-import sys
-
-import ROOT
-
+from root_file_utils import *
 from pos_utils import *
-
-ROOT.gROOT.SetBatch(True)
 
 
 def get_args():
@@ -28,22 +23,10 @@ def get_args():
 
 
 def dump_file(infile, outfile):
-    file = ROOT.TFile(infile, "read")
+    label = get_label(infile)
 
-    if "_gamma" in infile:
-        label = 0
-    elif "_e" in infile:
-        label = 1
-    elif "_mu" in infile:
-        label = 2
-    elif "_pi0" in infile:
-        label = 3
-    else:
-        print("Unknown input file particle type")
-        sys.exit()
-    tree = file.Get("wcsimT")
-    nevent = tree.GetEntries()
-    print("number of entries in the tree: " + str(nevent))
+    wcsim = WCSimFile(infile)
+
     # All data arrays are initialized here
     ev_ids = []
     ev_data = []
@@ -53,51 +36,23 @@ def dump_file(infile, outfile):
     directions = []
     energies = []
     files = []
-    Eth = {22: 0.786 * 2, 11: 0.786, -11: 0.786, 13: 158.7, -13: 158.7, 111: 0.786 * 4}
 
-    # get first event and trigger to prevent segfault (as part of memory leak work around)
-    tree.GetEvent(0)
-    trigger = tree.wcsimrootevent.GetTrigger(0)
-
-    for ev in range(nevent):
+    for ev in range(wcsim.nevent):
         # if ev%100 == 0:
         #    print("now processing event " +str(ev))
 
-        # Delete previous trigger to prevent memory leak
-        trigger.Delete()
-
-        tree.GetEvent(ev)
-        event = tree.wcsimrootevent
+        wcsim.get_event(ev)
 
         # if ev%100 == 0:
-        #    print("number of sub events: " + str(event.GetNumberOfEvents()))
-        trigger = event.GetTrigger(0)
-        tracks = trigger.GetTracks()
-        energy = []
-        position = []
-        direction = []
-        pid = []
-        for i in range(trigger.GetNtrack()):
-            if tracks[i].GetParenttype() == 0 and tracks[i].GetFlag() == 0 and tracks[i].GetIpnu() in Eth.keys():
-                pid.append(tracks[i].GetIpnu())
-                position.append([tracks[i].GetStart(0), tracks[i].GetStart(1), tracks[i].GetStart(2)])
-                direction.append([tracks[i].GetDir(0), tracks[i].GetDir(1), tracks[i].GetDir(2)])
-                energy.append(tracks[i].GetE())
-        firstTrigger = 0
-        firstTriggerTime = 9999999.0
-        for index in range(event.GetNumberOfEvents()):
-            trigger = event.GetTrigger(index)
-            triggerTime = min([hit.GetT() for hit in trigger.GetCherenkovDigiHits()])
-            if triggerTime < firstTriggerTime:
-                firstTriggerTime = triggerTime
-                firstTrigger = index
+        #    print("number of sub events: " + str(wcsim.ntrigger))
+        direction, energy, pid, position = wcsim.get_truth_info()
 
-        trigger = event.GetTrigger(firstTrigger)
+        trigger = wcsim.get_first_trigger()
 
         ncherenkovdigihits = trigger.GetNcherenkovdigihits()
 
         if ncherenkovdigihits == 0:
-            print("event, trigger has no hits " + str(ev) + " " + str(firstTrigger))
+            print("event, trigger has no hits " + str(ev) + " " + str(wcsim.current_trigger))
             continue
 
         np_q = np.zeros(ncherenkovdigihits)
@@ -173,7 +128,8 @@ def dump_file(infile, outfile):
     all_files = np.asarray(files, dtype=object)
     np.savez_compressed(outfile, event_data=all_events, labels=all_labels, pids=all_pids, positions=all_positions,
                         directions=all_directions, energies=all_energies, event_ids=all_ids, root_files=all_files)
-    file.Close()
+    del wcsim
+
 
 if __name__ == '__main__':
 
@@ -201,7 +157,7 @@ if __name__ == '__main__':
         if config.output_dir is None:
             output_file = os.path.splitext(input_file)[0] + '.npz'
         else:
-            output_file = os.path.join(config.output_dir,os.path.splitext(os.path.basename(input_file))[0] + '.npz')
+            output_file = os.path.join(config.output_dir, os.path.splitext(os.path.basename(input_file))[0] + '.npz')
 
         print("\nNow processing " + input_file)
         print("Outputting to " + output_file)
