@@ -26,6 +26,7 @@
 geom="nuPRISM_mPMT"
 darkrate=0.1
 daqfile="${WCSIMDIR}/macros/daq.mac"
+seed=${SLURM_ARRAY_TASK_ID}
 while getopts "n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:f:" flag; do
   case $flag in
     n) nevents=${OPTARG};;

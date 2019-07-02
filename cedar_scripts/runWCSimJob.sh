@@ -216,4 +216,4 @@ fi
 
 endtime=`date`
 echo "[${endtime}] Completed"
-echo -e "${submittime}\t${starttime}\t${endtime}\t${pid}\t${E_string}\t${pos_string}\t${dir_string}\t${nevents}\t${seed}" >> "${log_dir}.log"
+echo -e "${submittime}\t${starttime}\t${endtime}\t${pid}\t${E_string}\t${pos_string}\t${dir_string}\t${nevents}\t${seed}" >> "${data_dir}/jobs.log"

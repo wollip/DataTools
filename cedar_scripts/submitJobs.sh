@@ -17,6 +17,10 @@ data_dir=/project/rpp-tanaka-ab/machine_learning/data
 export WCSIMDIR="$data_dir/$name/WCSim"
 export G4WORKDIR="$data_dir/$name/WCSim"
 
+# cd to directory where log files will be saved
+mkdir -p /scratch/$USER/log/$name/
+cd /scratch/$USER/log/$name/
+
 JOBTIME=`date` sbatch --time=0:59:00 --array=0-9 --job-name=e "$DATATOOLS/cedar_scripts/runWCSimJob.sh" "$name" "$data_dir" -n 100 -e 100 -E 1000 -P e- -d 2pi -p fix -x 0 -y 0 -z 0
-JOBTIME=`date` sbatch --time=0:59:00 --array=0-9 --job-name=e "$DATATOOLS/cedar_scripts/runWCSimJob.sh" "$name" "$data_dir" -n 100 -e 100 -E 1000 -P mu- -d 2pi -p fix -x 0 -y 0 -z 0
-JOBTIME=`date` sbatch --time=0:59:00 --array=0-9 --job-name=e "$DATATOOLS/cedar_scripts/runWCSimJob.sh" "$name" "$data_dir" -n 100 -e 100 -E 1000 -P gamma -d 2pi -p fix -x 0 -y 0 -z 0
+JOBTIME=`date` sbatch --time=0:59:00 --array=0-9 --job-name=mu "$DATATOOLS/cedar_scripts/runWCSimJob.sh" "$name" "$data_dir" -n 100 -e 100 -E 1000 -P mu- -d 2pi -p fix -x 0 -y 0 -z 0
+JOBTIME=`date` sbatch --time=0:59:00 --array=0-9 --job-name=gamma "$DATATOOLS/cedar_scripts/runWCSimJob.sh" "$name" "$data_dir" -n 100 -e 100 -E 1000 -P gamma -d 2pi -p fix -x 0 -y 0 -z 0
