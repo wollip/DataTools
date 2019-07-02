@@ -42,4 +42,9 @@ export WCSIMDIR="$G4WORKDIR"
 # make read-only to prevent accidental write
 chmod -R a-w "$WCSIMDIR"/*
 
+echo "Finished setting up. Export env variables and run jobs:"
+echo "export \$WCSIMDIR=${WCSIMDIR}"
+echo "export \$G4WORKDIR=${G4WORKDIR}"
+echo "runWCSimJob.sh $name $data_dir [options]
+
 cd $start_dir
