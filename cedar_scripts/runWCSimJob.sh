@@ -164,7 +164,7 @@ macfile="${data_dir}/mac${gamma_ext}/${fullname}.mac"
 rootfile="${data_dir}/WCSim${gamma_ext}/${fullname}.root"
 mkdir -p "${data_dir}/mac${gamma_ext}/${directory}"
 echo "[`date`] Creating mac file ${macfile}"
-./build_mac.sh "${args[@]}" -f "${rootfile}" "${macfile}"
+$script_dir/build_mac.sh "${args[@]}" -f "${rootfile}" "${macfile}"
 
 # Run WCSim
 logfile="${log_dir}/WCSim${gamma_ext}/${fullname}.log"
@@ -186,7 +186,7 @@ if [ "${pid}" == "gamma" ]; then
   rootfile="${data_dir}/WCSim/${fullname}.root"
   mkdir -p "${data_dir}/mac_nuance/${directory}"
   echo "[`date`] Creating mac file ${macfile}"
-  ./build_mac.sh -n "${nevents}" -s "${seed}" -g "${geom}" -r "${darkrate}" -D "${daqfile}" -N "${nuancefile}" -f "${rootfile}" "${macfile}"
+  $script_dir/build_mac.sh -n "${nevents}" -s "${seed}" -g "${geom}" -r "${darkrate}" -D "${daqfile}" -N "${nuancefile}" -f "${rootfile}" "${macfile}"
   
   # Run WCSim
   logfile="${log_dir}/WCSim/${fullname}.log"
