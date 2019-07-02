@@ -177,6 +177,7 @@ cd ${WCSIMDIR}
 # For gammas, dump gamma conversion results to nuance file and run on that
 if [ "${pid}" == "gamma" ]; then
   nuancefile="${data_dir}/nuance/${fullname}.txt"
+  mkdir -p "${data_dir}/nuance/${directory}"
   posargs="\"${pos}\", ${xpos}${rpos}, ${ypos}, ${zpos:-0}"
   echo "[`date`] Dumping gamma conversion products to ${nuancefile}"
   root -l -b -q "$DATATOOLS/cedar_scripts/DumpGammaConvProducts.C+(\"${rootfile/.root/_flat.root}\", \"${nuancefile}\", ${nevents}, \"${dir}\", ${posargs})"
