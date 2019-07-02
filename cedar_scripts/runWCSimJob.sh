@@ -164,7 +164,7 @@ macfile="${data_dir}/mac${gamma_ext}/${fullname}.mac"
 rootfile="${data_dir}/WCSim${gamma_ext}/${fullname}.root"
 mkdir -p "${data_dir}/mac${gamma_ext}/${directory}"
 echo "[`date`] Creating mac file ${macfile}"
-"$DATA_TOOLS/cedar_scripts/build_mac.sh" "${args[@]}" -f "${rootfile}" "${macfile}"
+"$DATATOOLS/cedar_scripts/build_mac.sh" "${args[@]}" -f "${rootfile}" "${macfile}"
 
 # Run WCSim
 logfile="${log_dir}/WCSim${gamma_ext}/${fullname}.log"

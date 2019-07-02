@@ -76,12 +76,12 @@ void DumpGammaConvProducts(char * infile, char * outfile, int total, char * dir,
 //      cout << "WARNING: electron and positron lower than expected energy, skipping" << endl;
       continue;
     }
-    if(!strcmp(pos, "unif") {
+    if(!strcmp(pos, "unif")) {
       double R=x*TMath::Sqrt(r->Uniform());
       r->Circle(x,z,R);
       y=r->Uniform(-y, y);
     }
-    if(!strcmp(dir, "2pi"){
+    if(!strcmp(dir, "2pi")){
       double angle = r->Uniform(TMath::Pi()*2);
       TVector3 electronDir(dirx[electron], diry[electron], dirz[electron]);
       TVector3 positronDir(dirx[positron], diry[positron], dirz[positron]);
