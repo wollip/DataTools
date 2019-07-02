@@ -2,6 +2,9 @@
 
 # usage: setupJobs.sh name data_dir
 
+# exit when any command fails
+set -e
+
 name="$1"
 data_dir="`readlink -f $2`"
 
@@ -11,7 +14,7 @@ cd ..
 export DATATOOLS=`pwd`
 if [ "`git status --porcelain --untracked-files=no`" ]; then
   echo "DataTools git repository not clean, commit or stash changes first so that version can be traced"
-  exit
+  exit 1
 fi
 
 mkdir -p "$data_dir/$name"
@@ -21,14 +24,14 @@ export G4WORKDIR="$data_dir/$name/WCSim"
 mkdir -p "$G4WORKDIR/bin"
 if [ ! -w "$G4WORKDIR/bin" ]; then
   echo "$G4WORKDIR/bin is not writeable. Trying to overwrite previous run? Delete or make directory writable before running this script if you really want to do that."
-  exit
+  exit 1
 fi
 
 echo "Compiling WCSim, source $WCSIMDIR, destination $G4WORKDIR"
 cd "$WCSIMDIR"
 if [ `git status --porcelain --untracked-files=no` ]; then
   echo "WCSim git repository not clean, commit or stash changes first so that version can be traced"
-  exit
+  exit 1
 fi
 make clean
 make rootcint
@@ -45,6 +48,7 @@ chmod -R a-w "$WCSIMDIR"/*
 echo "Finished setting up. Export env variables and run jobs:"
 echo "export WCSIMDIR=${WCSIMDIR}"
 echo "export G4WORKDIR=${G4WORKDIR}"
+echo "export DATATOOLS=${DATATOOLS}"
 echo "runWCSimJob.sh $name $data_dir [options]"
 
 cd $start_dir

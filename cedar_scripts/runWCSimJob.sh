@@ -28,6 +28,9 @@
 #          -w z_dir              z direction (for dir_type=fix)
 #          -F                    also run fiTQun on output
 
+# exit when any command fails
+set -e
+
 ulimit -c 0
 
 module load python/3.6.3
