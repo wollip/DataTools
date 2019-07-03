@@ -26,7 +26,7 @@ class WCSimFile:
 
     def get_event(self, ev):
         # Delete previous triggers to prevent memory leak
-        for i in range(self.ntrigger) :
+        for i in range(self.ntrigger):
             self.event.GetTrigger(i).Delete()
         self.tree.GetEvent(ev)
         self.current_event = ev
