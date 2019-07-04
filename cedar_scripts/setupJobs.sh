@@ -45,10 +45,15 @@ export WCSIMDIR="$G4WORKDIR"
 # make read-only to prevent accidental write
 chmod -R a-w "$WCSIMDIR"/*
 
-echo "Finished setting up. Export env variables and run jobs:"
-echo "export WCSIMDIR=${WCSIMDIR}"
-echo "export G4WORKDIR=${G4WORKDIR}"
-echo "export DATATOOLS=${DATATOOLS}"
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+# script has been sourced
+  echo "Finished setting up. Environment variables set. Just run jobs:"
+else
+  echo "Finished setting up. Export environment variables and run jobs (or source this script instead of running in subshell):"
+  echo "export WCSIMDIR=${WCSIMDIR}"
+  echo "export G4WORKDIR=${G4WORKDIR}"
+  echo "export DATATOOLS=${DATATOOLS}"
+fi
 echo "runWCSimJob.sh $name $data_dir [options]"
 
 cd $start_dir
