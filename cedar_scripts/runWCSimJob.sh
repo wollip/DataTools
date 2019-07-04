@@ -144,7 +144,7 @@ if [ -z "${nuance}" ]; then
   Eth[pi0]="$(python -c "print(2*${Eth[gamma]})")"
   EkinMax="$(python -c "print(${Emax}+${Eth[${pid}]:-0})")"
   [ ! -z "${Emin}" ] && EkinMin="$(python -c "print(${Emin}+${Eth[${pid}]:-0})")"
-  
+
   pos_string="${pos}-pos-${xpos:+x${xpos}}${rpos:+R${rpos}}-y${ypos}${zpos:+-z${zpos}}cm"
   dir_string="${dir}-dir${xdir:+-x${xdir}-y${ydir}-z${zdir}}"
   E_string="E${Emin:+${Emin}to}${Emax}MeV"
@@ -186,7 +186,7 @@ else
   args=( "$@" )
 fi
 
-log_dir="/scratch/${USER}/log/${name}"
+LOGDIR=${LOGDIR:-"/scratch/${USER}/log/${name}"}
 
 # Create mac file
 macfile="${data_dir}/mac${gamma_conv}/${fullname}.mac"
@@ -196,7 +196,7 @@ echo "[`date`] Creating mac file ${macfile}"
 "$DATATOOLS/cedar_scripts/build_mac.sh" "${args[@]}" -f "${rootfile}" "${macfile}"
 
 # Run WCSim
-logfile="${log_dir}/WCSim${gamma_conv}/${fullname}.log"
+logfile="${LOGDIR}/WCSim${gamma_conv}/${fullname}.log"
 echo "[`date`] Running WCSim on ${macfile} output to ${rootfile} log to ${logfile}"
 mkdir -p "$(dirname "${rootfile}")"
 mkdir -p "$(dirname "${logfile}")"
@@ -219,7 +219,7 @@ if [ "${pid}" == "gamma" ]; then
   "${DATATOOLS}/cedar_scripts/build_mac.sh" -n "${nevents}" -s "${seed}" -g "${geom}" -r "${darkrate}" -D "${daqfile}" -N "${nuancefile}" -f "${rootfile}" "${macfile}"
 
   # Run WCSim
-  logfile="${log_dir}/WCSim/${fullname}.log"
+  logfile="${LOGDIR}/WCSim/${fullname}.log"
   echo "[`date`] Running WCSim on ${macfile} output to ${rootfile} log to ${logfile}"
   mkdir -p "$(dirname "${rootfile}")"
   mkdir -p "$(dirname "${logfile}")"
@@ -228,7 +228,7 @@ if [ "${pid}" == "gamma" ]; then
 fi
 
 npzfile="${data_dir}/numpy/${fullname}.npz"
-logfile="${log_dir}/numpy/${fullname}.log"
+logfile="${LOGDIR}/numpy/${fullname}.log"
 mkdir -p "$(dirname "${npzfile}")"
 mkdir -p "$(dirname "${logfile}")"
 echo "[`date`] Converting to numpy file ${npzfile} log to ${logfile}"
@@ -237,7 +237,7 @@ python "$DATATOOLS/root_utils/event_dump.py" "${rootfile}" -d "${data_dir}/numpy
 if [ ! -z "${runfiTQun}" ]; then
   echo "[`date`] Running fiTQun on ${rootfile}"
   fitqunfile="${data_dir}/fiTQun/${fullname}.fiTQun.root"
-  logfile="${log_dir}/fiTQun/${fullname}.log"
+  logfile="${LOGDIR}/fiTQun/${fullname}.log"
   mkdir -p "$(dirname "${fitqunfile}")"
   mkdir -p "$(dirname "${logfile}")"
   echo "running fiTQun not yet available!"
