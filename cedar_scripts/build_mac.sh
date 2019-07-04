@@ -29,29 +29,29 @@ daqfile="${WCSIMDIR}/macros/daq.mac"
 seed=${SLURM_ARRAY_TASK_ID}
 while getopts "n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:f:" flag; do
   case $flag in
-    n) nevents=${OPTARG};;
-    s) seed=${OPTARG};;
-    g) geom=${OPTARG};;
-    r) darkrate=${OPTARG};;
-    D) daqfile=${OPTARG};;
-    N) nuance=${OPTARG};;
-    E) Emax=${OPTARG};;
-    e) Emin=${OPTARG};;
-    P) pid=${OPTARG};;
-    p) pos=${OPTARG};;
-    x) xpos=${OPTARG};;
-    y) ypos=${OPTARG};;
-    z) zpos=${OPTARG};;
-    R) rpos=${OPTARG};;
-    d) dir=${OPTARG};;
-    u) xdir=${OPTARG};;
-    v) ydir=${OPTARG};;
-    w) zdir=${OPTARG};;
-    f) rootfile=${OPTARG};;
+    n) nevents="${OPTARG}";;
+    s) seed="${OPTARG}";;
+    g) geom="${OPTARG}";;
+    r) darkrate="${OPTARG}";;
+    D) daqfile="$(readlink -f "${OPTARG}")";;
+    N) nuance="$(readlink -f "${OPTARG}")";;
+    E) Emax="${OPTARG}";;
+    e) Emin="${OPTARG}";;
+    P) pid="${OPTARG}";;
+    p) pos="${OPTARG}";;
+    x) xpos="${OPTARG}";;
+    y) ypos="${OPTARG}";;
+    z) zpos="${OPTARG}";;
+    R) rpos="${OPTARG}";;
+    d) dir="${OPTARG}";;
+    u) xdir="${OPTARG}";;
+    v) ydir="${OPTARG}";;
+    w) zdir="${OPTARG}";;
+    f) rootfile="$(readlink -f "${OPTARG}")";;
   esac
 done
 shift $((OPTIND - 1))
-file=$1
+file="$(readlink -f "$1")"
 if [ -z $nevents ]; then echo "Number of events not set"; exit ; fi
 if [ -z $seed ]; then echo "Random seed not set"; exit ; fi
 if [ -z $geom ]; then echo "Geometry not set"; exit ; fi

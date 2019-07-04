@@ -9,8 +9,8 @@ Authors: Wojtek Fedorko, Julian Ding, Nick Prouse
 """
 
 import argparse
-from root_file_utils import *
-from pos_utils import *
+from root_utils.root_file_utils import *
+from root_utils.pos_utils import *
 
 
 def get_args():

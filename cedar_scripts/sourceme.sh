@@ -8,4 +8,5 @@ source /project/rpp-tanaka-ab/machine_learning/production_software/Geant4/geant4
 export G4WORKDIR=/project/rpp-tanaka-ab/machine_learning/production_software/WCSim/exe
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH:"}${G4LIB}/${G4SYSTEM}
 export WCSIMDIR=/project/rpp-tanaka-ab/machine_learning/production_software/WCSim
-export PYTHONPATH=$ROOTSYS/../bindings/pyroot:$PYTHONPATH
+export DATATOOLS="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." >/dev/null 2>&1 && pwd )"
+export PYTHONPATH=$DATATOOLS:$PYTHONPATH
