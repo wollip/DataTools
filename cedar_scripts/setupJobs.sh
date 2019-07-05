@@ -6,13 +6,13 @@
 set -e
 
 name="$1"
-data_dir="`readlink -f $2`"
+data_dir="$(readlink -f "$2")"
 
-start_dir=`pwd`
-cd "$( dirname "${BASH_SOURCE[0]}" )"
+start_dir="$(pwd)"
+cd "$(dirname "${BASH_SOURCE[0]}")"
 cd ..
-export DATATOOLS=`pwd`
-if [ "`git status --porcelain --untracked-files=no`" ]; then
+export DATATOOLS="$(pwd)"
+if [ "$(git status --porcelain --untracked-files=no)" ]; then
   echo "DataTools git repository not clean, commit or stash changes first so that version can be traced"
   exit 1
 fi
@@ -29,7 +29,7 @@ fi
 
 echo "Compiling WCSim, source $WCSIMDIR, destination $G4WORKDIR"
 cd "$WCSIMDIR"
-if [ `git status --porcelain --untracked-files=no` ]; then
+if [ "$(git status --porcelain --untracked-files=no)" ]; then
   echo "WCSim git repository not clean, commit or stash changes first so that version can be traced"
   exit 1
 fi
@@ -45,10 +45,15 @@ export WCSIMDIR="$G4WORKDIR"
 # make read-only to prevent accidental write
 chmod -R a-w "$WCSIMDIR"/*
 
-echo "Finished setting up. Export env variables and run jobs:"
-echo "export WCSIMDIR=${WCSIMDIR}"
-echo "export G4WORKDIR=${G4WORKDIR}"
-echo "export DATATOOLS=${DATATOOLS}"
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+# script has been sourced
+  echo "Finished setting up. Environment variables set. Just run jobs:"
+else
+  echo "Finished setting up. Export environment variables and run jobs (or source this script instead of running in subshell):"
+  echo "export WCSIMDIR=${WCSIMDIR}"
+  echo "export G4WORKDIR=${G4WORKDIR}"
+  echo "export DATATOOLS=${DATATOOLS}"
+fi
 echo "runWCSimJob.sh $name $data_dir [options]"
 
 cd $start_dir

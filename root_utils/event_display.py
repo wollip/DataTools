@@ -11,10 +11,12 @@ from matplotlib.colors import LinearSegmentedColormap as lsc
 from mpl_toolkits.axes_grid1 import ImageGrid
 from mpl_toolkits.mplot3d import Axes3D
 
-from pos_utils import *
-from root_file_utils import *
+from root_utils.pos_utils import *
+from root_utils.root_file_utils import *
 
 import os
+
+ROOT.gROOT.SetBatch(True)
 
 matplotlib.use('Agg')
 

@@ -1,19 +1,12 @@
 import ROOT
 import os
 
-ROOT.gROOT.SetBatch(True)
 ROOT.gSystem.Load(os.environ['WCSIMDIR'] + "/libWCSimRoot.so")
 
 
-class WCSimFile:
-    def __init__(self, filename):
-        self.file = ROOT.TFile(filename, "read")
-        self.geotree = self.file.Get("wcsimGeoT")
-        print("number of entries in the geometry tree: " + str(self.geotree.GetEntries()))
-        self.geotree.GetEntry(0)
-        self.geo = self.geotree.wcsimrootgeom
-        self.num_pmts = self.geo.GetWCNumPMT()
-        self.tree = self.file.Get("wcsimT")
+class WCSim:
+    def __init__(self, tree):
+        self.tree = tree
         self.nevent = self.tree.GetEntries()
         print("number of entries in the tree: " + str(self.nevent))
         # Get first event and trigger to prevent segfault when later deleting trigger to prevent memory leak
@@ -25,10 +18,11 @@ class WCSimFile:
         self.current_trigger = 0
 
     def get_event(self, ev):
-        # Delete previous triggers to prevent memory leak
-        for i in range(self.ntrigger) :
-            self.event.GetTrigger(i).Delete()
+        # Delete previous triggers to prevent memory leak (only if file does not change)
+        triggers = [self.event.GetTrigger(i) for i in range(self.ntrigger)]
+        oldfile = self.tree.GetCurrentFile()
         self.tree.GetEvent(ev)
+        if self.tree.GetCurrentFile() == oldfile: [t.Delete() for t in triggers]
         self.current_event = ev
         self.event = self.tree.wcsimrootevent
         self.ntrigger = self.event.GetNumberOfEvents()
@@ -38,8 +32,16 @@ class WCSimFile:
         self.current_trigger = trig
         return self.trigger
 
-    def __del__(self):
-        self.file.Close()
+    def get_first_trigger(self):
+        first_trigger = 0
+        first_trigger_time = 9999999.0
+        for index in range(self.ntrigger):
+            self.get_trigger(index)
+            trigger_time = min([hit.GetT() for hit in self.trigger.GetCherenkovDigiHits()])
+            if trigger_time < first_trigger_time:
+                first_trigger_time = trigger_time
+                first_trigger = index
+        return self.get_trigger(first_trigger)
 
     def get_truth_info(self):
         self.get_trigger(0)
@@ -57,17 +59,28 @@ class WCSimFile:
                 energy.append(tracks[i].GetE())
         return direction, energy, pid, position
 
-    def get_first_trigger(self):
-        first_trigger = 0
-        first_trigger_time = 9999999.0
-        for index in range(self.ntrigger):
-            self.get_trigger(index)
-            trigger_time = min([hit.GetT() for hit in self.trigger.GetCherenkovDigiHits()])
-            if trigger_time < first_trigger_time:
-                first_trigger_time = trigger_time
-                first_trigger = index
-        return self.get_trigger(first_trigger)
 
+class WCSimFile(WCSim):
+    def __init__(self, filename):
+        self.file = ROOT.TFile(filename, "read")
+        tree = self.file.Get("wcsimT")
+        self.geotree = self.file.Get("wcsimGeoT")
+        print("number of entries in the geometry tree: " + str(self.geotree.GetEntries()))
+        self.geotree.GetEntry(0)
+        self.geo = self.geotree.wcsimrootgeom
+        self.num_pmts = self.geo.GetWCNumPMT()
+        super().__init__(tree)
+
+    def __del__(self):
+        self.file.Close()
+
+
+class WCSimChain(WCSim):
+    def __init__(self, filenames):
+        self.chain = ROOT.TChain("wcsimT")
+        for file in filenames:
+            self.chain.Add(file)
+        super().__init__(self.chain)
 
 def get_label(infile):
     if "_gamma" in infile:
