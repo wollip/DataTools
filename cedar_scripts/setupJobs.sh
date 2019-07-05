@@ -6,13 +6,13 @@
 set -e
 
 name="$1"
-data_dir="`readlink -f $2`"
+data_dir="$(readlink -f "$2")"
 
-start_dir=`pwd`
-cd "$( dirname "${BASH_SOURCE[0]}" )"
+start_dir="$(pwd)"
+cd "$(dirname "${BASH_SOURCE[0]}")"
 cd ..
-export DATATOOLS=`pwd`
-if [ "`git status --porcelain --untracked-files=no`" ]; then
+export DATATOOLS="$(pwd)"
+if [ "$(git status --porcelain --untracked-files=no)" ]; then
   echo "DataTools git repository not clean, commit or stash changes first so that version can be traced"
   exit 1
 fi
@@ -29,7 +29,7 @@ fi
 
 echo "Compiling WCSim, source $WCSIMDIR, destination $G4WORKDIR"
 cd "$WCSIMDIR"
-if [ `git status --porcelain --untracked-files=no` ]; then
+if [ "$(git status --porcelain --untracked-files=no)" ]; then
   echo "WCSim git repository not clean, commit or stash changes first so that version can be traced"
   exit 1
 fi
