@@ -18,19 +18,19 @@ import os
 def geodump(config):
 
     config.input_file=config.input_file[0]
-    print "input file: "+str(config.input_file)
-    print "output file: "+str(config.output_file)
+    print("input file: "+str(config.input_file))
+    print("output file: "+str(config.output_file))
     
     #file=ROOT.TFile("mu_500MeV_run700_wcsim.root","read")
     file=ROOT.TFile(config.input_file,"read")
     if config.output_file is None:
         config.output_file=config.input_file.replace(".root",".npz")
-        print "set output file to: "+config.output_file
+        print("set output file to: "+config.output_file)
     
     geotree=file.Get("wcsimGeoT");
     
 
-    print "number of entries in the geometry tree: " + str(geotree.GetEntries())
+    print("number of entries in the geometry tree: " + str(geotree.GetEntries()))
 
     geotree.GetEntry(0)
     geo=geotree.wcsimrootgeom
