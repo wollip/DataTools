@@ -1,7 +1,6 @@
 import ROOT
 import os
 
-ROOT.gROOT.SetBatch(True)
 ROOT.gSystem.Load(os.environ['WCSIMDIR'] + "/libWCSimRoot.so")
 
 
@@ -19,10 +18,11 @@ class WCSim:
         self.current_trigger = 0
 
     def get_event(self, ev):
-        # Delete previous triggers to prevent memory leak
-        for i in range(self.ntrigger):
-            self.event.GetTrigger(i).Delete()
+        # Delete previous triggers to prevent memory leak (only if file does not change)
+        triggers = [self.event.GetTrigger(i) for i in range(self.ntrigger)]
+        oldfile = self.tree.GetCurrentFile()
         self.tree.GetEvent(ev)
+        if self.tree.GetCurrentFile() == oldfile: [t.Delete() for t in triggers]
         self.current_event = ev
         self.event = self.tree.wcsimrootevent
         self.ntrigger = self.event.GetNumberOfEvents()

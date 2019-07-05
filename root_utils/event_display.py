@@ -16,6 +16,8 @@ from root_utils.root_file_utils import *
 
 import os
 
+ROOT.gROOT.SetBatch(True)
+
 matplotlib.use('Agg')
 
 
