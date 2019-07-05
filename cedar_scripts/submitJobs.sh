@@ -12,7 +12,7 @@ source sourceme.sh
 name=IWCDmPMT_test
 data_dir=/project/rpp-tanaka-ab/machine_learning/data
 
-./setupJobs.sh "$name" "$data_dir"
+source setupJobs.sh "$name" "$data_dir"
 
 # set WCSim directory to where the data will also go (setup script will compile it there to be reused if needed)
 export WCSIMDIR="$data_dir/$name/WCSim"
