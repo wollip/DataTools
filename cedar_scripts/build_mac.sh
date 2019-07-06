@@ -47,11 +47,11 @@ while getopts "n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:f:" flag; do
     u) xdir="${OPTARG}";;
     v) ydir="${OPTARG}";;
     w) zdir="${OPTARG}";;
-    f) rootfile="$(readlink -f "${OPTARG}")";;
+    f) rootfile="$(readlink -m "${OPTARG}")";;
   esac
 done
 shift $((OPTIND - 1))
-file="$(readlink -f "$1")"
+file="$(readlink -m "$1")"
 if [ -z $nevents ]; then echo "Number of events not set"; exit 1; fi
 if [ -z $seed ]; then echo "Random seed not set"; exit 1; fi
 if [ -z $geom ]; then echo "Geometry not set"; exit 1; fi
