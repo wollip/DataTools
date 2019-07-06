@@ -2,8 +2,8 @@
 
 # usage: setupJobs.sh name data_dir
 
-# exit when any command fails
-set -e
+# exit when any command fails if being run in subshell
+[[ "${BASH_SOURCE[0]}" == "$0" ]] && set -e
 
 name="$1"
 data_dir="$(readlink -f "$2")"
