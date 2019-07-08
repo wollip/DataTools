@@ -6,7 +6,7 @@
 #SBATCH --error=%x-%a.err
 #SBATCH --cpus-per-task=1
 
-# usage:   runWCSimJob.sh name data_dir [options] 
+# usage:   run_WCSim_job.sh name data_dir [options]
 #          name is used in the output directory and filenames to identify this production run
 #          data_dir is the top directory where simulated data will be stored
 # Options: -n nevents            number of events

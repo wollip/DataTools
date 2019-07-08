@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# usage: setupJobs.sh name data_dir
+# usage: setup_jobs.sh name data_dir
 
 # exit when any command fails
 set -e
@@ -54,6 +54,6 @@ else
   echo "export G4WORKDIR=${G4WORKDIR}"
   echo "export DATATOOLS=${DATATOOLS}"
 fi
-echo "runWCSimJob.sh $name $data_dir [options]"
+echo "run_WCSim_job.sh $name $data_dir [options]"
 
 cd $start_dir
