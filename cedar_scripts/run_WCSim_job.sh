@@ -42,8 +42,8 @@ starttime="`date`"
 
 # Get positional parameters
 name="$1"
-data_dir="$(readlink -f "$2")"
-opts = "n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:F"
+data_dir="$(readlink -m "$2")"
+opts="n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:F"
 if [ -z "${name}" ] || [[ "${name}" == -[${opts//:}] ]]; then echo "Run name not set"; exit; fi
 if [ -z "${data_dir}" ] || [[ "${data_dir}" == -[${opts//:}]  ]]; then echo "Data directory not set"; exit; fi
 shift 2

@@ -2,11 +2,16 @@
 
 # usage: setup_jobs.sh name data_dir
 
-# exit when any command fails
-set -e
+# exit when any command fails if being run in subshell
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  set -e
+  EXIT=exit
+else
+  EXIT=return
+fi
 
 name="$1"
-data_dir="$(readlink -f "$2")"
+data_dir="$(readlink -m "$2")"
 
 start_dir="$(pwd)"
 cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -14,7 +19,7 @@ cd ..
 export DATATOOLS="$(pwd)"
 if [ "$(git status --porcelain --untracked-files=no)" ]; then
   echo "DataTools git repository not clean, commit or stash changes first so that version can be traced"
-  exit 1
+  $EXIT 1
 fi
 
 mkdir -p "$data_dir/$name"
@@ -24,14 +29,14 @@ export G4WORKDIR="$data_dir/$name/WCSim"
 mkdir -p "$G4WORKDIR/bin"
 if [ ! -w "$G4WORKDIR/bin" ]; then
   echo "$G4WORKDIR/bin is not writeable. Trying to overwrite previous run? Delete or make directory writable before running this script if you really want to do that."
-  exit 1
+  $EXIT 1
 fi
 
 echo "Compiling WCSim, source $WCSIMDIR, destination $G4WORKDIR"
 cd "$WCSIMDIR"
 if [ "$(git status --porcelain --untracked-files=no)" ]; then
   echo "WCSim git repository not clean, commit or stash changes first so that version can be traced"
-  exit 1
+  $EXIT 1
 fi
 make clean
 make rootcint

@@ -47,39 +47,39 @@ while getopts "n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:f:" flag; do
     u) xdir="${OPTARG}";;
     v) ydir="${OPTARG}";;
     w) zdir="${OPTARG}";;
-    f) rootfile="$(readlink -f "${OPTARG}")";;
+    f) rootfile="$(readlink -m "${OPTARG}")";;
   esac
 done
 shift $((OPTIND - 1))
-file="$(readlink -f "$1")"
-if [ -z $nevents ]; then echo "Number of events not set"; exit ; fi
-if [ -z $seed ]; then echo "Random seed not set"; exit ; fi
-if [ -z $geom ]; then echo "Geometry not set"; exit ; fi
-if [ -z $darkrate ]; then echo "Dark rate not set"; exit ; fi
-if [ -z $daqfile ]; then echo "DAQ mac file not set"; exit ; fi
-if [ -z $rootfile ]; then echo "Root file not set"; exit ; fi
-if [ -z $file ]; then echo "Output mac file name not set"; exit ; fi
+file="$(readlink -m "$1")"
+if [ -z $nevents ]; then echo "Number of events not set"; exit 1; fi
+if [ -z $seed ]; then echo "Random seed not set"; exit 1; fi
+if [ -z $geom ]; then echo "Geometry not set"; exit 1; fi
+if [ -z $darkrate ]; then echo "Dark rate not set"; exit 1; fi
+if [ -z $daqfile ]; then echo "DAQ mac file not set"; exit 1; fi
+if [ -z $rootfile ]; then echo "Root file not set"; exit 1; fi
+if [ -z $file ]; then echo "Output mac file name not set"; exit 1; fi
 if [ ! -z $nuance ]; then
-  if [ ! -z $Emax ]; then echo "Using nuance file but Emax is set"; exit ; fi
-  if [ ! -z $Emin ]; then echo "Using nuance file but Emin is set"; exit ; fi
-  if [ ! -z $pid  ]; then echo "Using nuance file but PID is set"; exit ; fi
-  if [ ! -z $pos ]; then echo "Using nuance file but pos is set"; exit ; fi
-  if [ ! -z $xpos ]; then echo "Using nuance file but x pos is set"; exit ; fi
-  if [ ! -z $ypos ]; then echo "Using nuance file but y pos is set"; exit ; fi
-  if [ ! -z $zpos ]; then echo "Using nuance file but z pos is set"; exit ; fi
-  if [ ! -z $rpos ]; then echo "Using nuance file but r pos is set"; exit ; fi
-  if [ ! -z $dir  ]; then echo "Using nuance file but dir type is set"; exit ; fi
-  if [ ! -z $xdir ]; then echo "Using nuance file but x dir is set"; exit ; fi
-  if [ ! -z $ydir ]; then echo "Using nuance file but y dir is set"; exit ; fi
-  if [ ! -z $zdir ]; then echo "Using nuance file but z dir is set"; exit ; fi
+  if [ ! -z $Emax ]; then echo "Using nuance file but Emax is set"; exit 1; fi
+  if [ ! -z $Emin ]; then echo "Using nuance file but Emin is set"; exit 1; fi
+  if [ ! -z $pid  ]; then echo "Using nuance file but PID is set"; exit 1; fi
+  if [ ! -z $pos ]; then echo "Using nuance file but pos is set"; exit 1; fi
+  if [ ! -z $xpos ]; then echo "Using nuance file but x pos is set"; exit 1; fi
+  if [ ! -z $ypos ]; then echo "Using nuance file but y pos is set"; exit 1; fi
+  if [ ! -z $zpos ]; then echo "Using nuance file but z pos is set"; exit 1; fi
+  if [ ! -z $rpos ]; then echo "Using nuance file but r pos is set"; exit 1; fi
+  if [ ! -z $dir  ]; then echo "Using nuance file but dir type is set"; exit 1; fi
+  if [ ! -z $xdir ]; then echo "Using nuance file but x dir is set"; exit 1; fi
+  if [ ! -z $ydir ]; then echo "Using nuance file but y dir is set"; exit 1; fi
+  if [ ! -z $zdir ]; then echo "Using nuance file but z dir is set"; exit 1; fi
 else
-  if [ -z $Emax ]; then echo "Energy not set"; exit ; fi
-  if [ -z $pid  ]; then echo "PID not set"; exit ; fi
-  if [ -z $dir  ]; then echo "Direction type not set"; exit ; fi
+  if [ -z $Emax ]; then echo "Energy not set"; exit 1; fi
+  if [ -z $pid  ]; then echo "PID not set"; exit 1; fi
+  if [ -z $dir  ]; then echo "Direction type not set"; exit 1; fi
   if [ "$dir" == "fix" ]; then
-    if [ -z $xdir ]; then echo "Dir is fix but x dir not set"; exit ; fi
-    if [ -z $ydir ]; then echo "Dir is fix but y dir not set"; exit ; fi
-    if [ -z $zdir ]; then echo "Dir is fix but z dir not set"; exit ; fi
+    if [ -z $xdir ]; then echo "Dir is fix but x dir not set"; exit 1; fi
+    if [ -z $ydir ]; then echo "Dir is fix but y dir not set"; exit 1; fi
+    if [ -z $zdir ]; then echo "Dir is fix but z dir not set"; exit 1; fi
   else
     if [[ "$dir" != [24]pi ]]; then echo "Unrecognised direction type"; exit; fi
     if [ ! -z $xdir ]; then echo "Dir is $dir but x dir set"; exit; fi
@@ -87,8 +87,8 @@ else
     if [ ! -z $zdir ]; then echo "Dir is $dir but z dir set"; exit; fi
   fi
   if [ "$pos" == "unif" ]; then
-    if [ ! -z $xpos ]; then echo "Pos is unif but x pos set"; exit ; fi
-    if [ ! -z $zpos ]; then echo "Pos is unif but z pos set"; exit ; fi
+    if [ ! -z $xpos ]; then echo "Pos is unif but x pos set"; exit 1; fi
+    if [ ! -z $zpos ]; then echo "Pos is unif but z pos set"; exit 1; fi
     if [ -z $ypos ]; then echo "Pos is unif but max half-y not set"; exit; fi
     if [ -z $rpos ]; then echo "Pos is unif but max R not set"; exit; fi
   elif [ "$pos" == "fix" ]; then
@@ -98,10 +98,10 @@ else
       xpos=$rpos
       zpos=0
     else
-      if [ -z $xpos ]; then echo "Neither R pos nor x pos set"; exit ; fi
-      if [ -z $zpos ]; then echo "Neither R pos not z pos set"; exit ; fi
+      if [ -z $xpos ]; then echo "Neither R pos nor x pos set"; exit 1; fi
+      if [ -z $zpos ]; then echo "Neither R pos not z pos set"; exit 1; fi
     fi
-    if [ -z $ypos ]; then echo "y pos not set"; exit ; fi
+    if [ -z $ypos ]; then echo "y pos not set"; exit 1; fi
   fi
 fi
 
