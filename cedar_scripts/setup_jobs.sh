@@ -52,13 +52,14 @@ chmod -R a-w "$G4WORKDIR"
 
 if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
 # script has been sourced
-  echo "Finished setting up. Environment variables set. Just run jobs:"
+  echo "Finished setting up. Environment variables exported:"
 else
-  echo "Finished setting up. Export environment variables and run jobs (or source this script instead of running in subshell):"
-  echo "export WCSIMDIR=${WCSIMDIR}"
-  echo "export G4WORKDIR=${G4WORKDIR}"
-  echo "export DATATOOLS=${DATATOOLS}"
+  echo "Finished setting up. Export environment variables (or source this script instead of running in subshell):"
 fi
+echo "export WCSIMDIR=${WCSIMDIR}"
+echo "export G4WORKDIR=${G4WORKDIR}"
+echo "export DATATOOLS=${DATATOOLS}"
+echo "Then run jobs:"
 echo "run_WCSim_job.sh $name $data_dir [options]"
 
 cd $start_dir
