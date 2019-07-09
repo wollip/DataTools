@@ -1,24 +1,25 @@
 #!/bin/bash
 #
 # Usage:  build_mac.sh [options] filename.mac
-# Option:  -n     nevents
-#          -s     seed
-#          -g     geom
-#          -r     dark-rate [kHz]
-#          -D     DAQ_mac_file
-#          -N     NUANCE_input_file
-#          -E     fixed_or_max_KE [MeV]
-#          -e     min_KE [MeV]
-#          -p     PID
-#          -x     x_pos [cm] (for fixed position)
-#          -y     y_pos [cm] (for fixed position) or half_y_max (for uniform position)
-#          -z     z_pos [cm] (for fixed position)
-#          -R     R_max (for uniform position)
-#          -d     direction_type [fix|2pi|4pi]
-#          -u     x_dir
-#          -v     y_dir
-#          -w     z_dir
-#          -f     output_file.root
+# Options: -n nevents            number of events
+#          -s seed               WCSim random seed, default is set from SLURM_ARRAY_TASK_ID)
+#          -g geom               WCSim geometry default is nuPRISM_mPMT)
+#          -r dark-rate          dark rate [kHz] (default is 0.1 kHz)
+#          -D DAQ_mac_file       WCSim daq mac file (default is [data_dir]/[name]/WCSim/macros/daq.mac
+#          -N NUANCE_input_file  input text file for NUANCE format event vectors
+#          -E fixed_or_max_Evis  fixed or maximum visible energy [MeV]
+#         [-e min_Evis]          minimum visible energy [MeV]
+#          -P particle_type      particle type
+#          -p pos_type           position type [fix|unif]
+#         [-x x_pos]             fixed x position (for pos_type=fix) [cm]
+#          -y y_pos              fixed y position (for pos_type=fix) or maximum half-y (for pos_type=unif) [cm]
+#         [-z z_pos]             fixed z position (for pos_type=fix) [cm]
+#         [-R R_pos]             fixed R position (for pos_type=fix) or max R (for pos_type=unif) [cm]
+#          -d dir_type           direction type [fix|2pi|4pi]
+#          -u x_dir              x direction (for dir_type=fix)
+#          -v y_dir              y direction (for dir_type=fix)
+#          -w z_dir              z direction (for dir_type=fix)
+#          -f output_file.root   Output root file
 
 #for arg in "$@"; do
 #  echo $arg

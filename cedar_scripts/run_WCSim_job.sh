@@ -14,10 +14,10 @@
 #          -g geom               WCSim geometry default is nuPRISM_mPMT)
 #          -r dark-rate          dark rate [kHz] (default is 0.1 kHz)
 #          -D DAQ_mac_file       WCSim daq mac file (default is [data_dir]/[name]/WCSim/macros/daq.mac
-#          -N                    NUANCE_input_file
-#          -E fixed_or_max_Evis  fixed or maximum energy [MeV]
-#         [-e min_Evis]          minumum energy [MeV]
-#          -P PID                particle type
+#          -N NUANCE_input_file  input text file for NUANCE format event vectors
+#          -E fixed_or_max_Evis  fixed or maximum visible energy [MeV]
+#         [-e min_Evis]          minimum visible energy [MeV]
+#          -P particle_type      particle type
 #          -p pos_type           position type [fix|unif]
 #         [-x x_pos]             fixed x position (for pos_type=fix) [cm]
 #          -y y_pos              fixed y position (for pos_type=fix) or maximum half-y (for pos_type=unif) [cm]
