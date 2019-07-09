@@ -25,10 +25,10 @@ fi
 mkdir -p "$data_dir/$name"
 git describe --always --long --tags > "$data_dir/$name/DataTools-git-describe"
 
-export G4WORKDIR="$data_dir/$name/WCSim"
-mkdir -p "$G4WORKDIR/bin"
-if [ ! -w "$G4WORKDIR/bin" ]; then
-  echo "$G4WORKDIR/bin is not writeable. Trying to overwrite previous run? Delete or make directory writable before running this script if you really want to do that."
+export G4WORKDIR="$data_dir/$name/WCSim/build"
+mkdir -p "$G4WORKDIR"
+if [ ! -w "$G4WORKDIR" ]; then
+  echo "$G4WORKDIR is not writeable. Trying to overwrite previous run? Delete or make directory writable before running this script if you really want to do that."
   $EXIT 1
 fi
 
@@ -48,7 +48,7 @@ cp "$WCSIMDIR/libWCSim.a" "$G4WORKDIR"
 git describe --always --long --tags > "$G4WORKDIR/WCSim-git-describe"
 export WCSIMDIR="$G4WORKDIR"
 # make read-only to prevent accidental write
-chmod -R a-w "$WCSIMDIR"/*
+chmod -R a-w "$G4WORKDIR"
 
 if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
 # script has been sourced
