@@ -149,7 +149,7 @@ if [ -z "${nuance}" ]; then
   dir_string="${dir}-dir${xdir:+-x${xdir}-y${ydir}-z${zdir}}"
   E_string="E${Emin:+${Emin}to}${Emax}MeV"
   directory="${pid}/${E_string}/${pos_string}/${dir_string}"
-  filename="${name}_${pid}_${E_string}_${pos_string}_${dir_string}_${nevents}evts_${seed}"
+  filename="${name////_}_${pid}_${E_string}_${pos_string}_${dir_string}_${nevents}evts_${seed}"
 else
   directory="nuance/"
   filename="$(basename "${nuance}")"
