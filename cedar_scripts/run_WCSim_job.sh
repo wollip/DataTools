@@ -27,6 +27,7 @@
 #          -u x_dir              x direction (for dir_type=fix)
 #          -v y_dir              y direction (for dir_type=fix)
 #          -w z_dir              z direction (for dir_type=fix)
+#          -i process            Geant4 process to inactivate (can be used multiple times)
 #          -F                    also run fiTQun on output
 
 # exit when any command fails
@@ -43,7 +44,7 @@ starttime="`date`"
 # Get positional parameters
 name="$1"
 data_dir="$(readlink -m "$2")"
-opts="n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:F"
+opts="n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:i:F"
 if [ -z "${name}" ] || [[ "${name}" == -[${opts//:}] ]]; then echo "Run name not set"; exit; fi
 if [ -z "${data_dir}" ] || [[ "${data_dir}" == -[${opts//:}]  ]]; then echo "Data directory not set"; exit; fi
 shift 2
@@ -76,6 +77,7 @@ while getopts "$opts" flag; do
     u) xdir="${OPTARG}";;
     v) ydir="${OPTARG}";;
     w) zdir="${OPTARG}";;
+    i) procs+=("${OPTARG}");;
     F) run_fiTQun=1;;
   esac
 done

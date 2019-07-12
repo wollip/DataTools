@@ -28,7 +28,7 @@ geom="nuPRISM_mPMT"
 darkrate=0.1
 daqfile="${WCSIMDIR}/macros/daq.mac"
 seed=${SLURM_ARRAY_TASK_ID}
-while getopts "n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:f:" flag; do
+while getopts "n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:i:f:" flag; do
   case $flag in
     n) nevents="${OPTARG}";;
     s) seed="${OPTARG}";;
@@ -48,6 +48,7 @@ while getopts "n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:f:" flag; do
     u) xdir="${OPTARG}";;
     v) ydir="${OPTARG}";;
     w) zdir="${OPTARG}";;
+    i) procs+=("${OPTARG}");;
     f) rootfile="$(readlink -m "${OPTARG}")";;
   esac
 done
@@ -106,63 +107,66 @@ else
   fi
 fi
 
-echo     "/run/verbose                           1"                    > $file
-echo     "/tracking/verbose                      0"                    >> $file
-echo     "/hits/verbose                          0"                    >> $file
-echo     "/random/setSeeds                       $seed $seed"          >> $file
-echo     "/WCSim/WCgeom                          $geom"                >> $file
-echo     "/WCSim/Construct"                                            >> $file
-echo     "/WCSim/PMTQEMethod                     Stacking_Only"        >> $file
-echo     "/WCSim/PMTCollEff                      on"                   >> $file
-echo     "/WCSim/SavePi0                         false"                >> $file
-echo     "/DAQ/Digitizer                         SKI"                  >> $file
-echo     "/DAQ/Trigger                           NDigits"              >> $file
-echo     "/control/execute                       $daqfile"             >> $file
-echo     "/DarkRate/SetDarkRate                  $darkrate kHz"        >> $file
-echo     "/DarkRate/SetDarkMode                  1"                    >> $file
-echo     "/DarkRate/SetDarkHigh                  100000"               >> $file
-echo     "/DarkRate/SetDarkLow                   0"                    >> $file
-echo     "/DarkRate/SetDarkWindow                4000"                 >> $file
+echo     "/run/verbose                           1"                    > "${file}"
+echo     "/tracking/verbose                      0"                    >> "${file}"
+echo     "/hits/verbose                          0"                    >> "${file}"
+echo     "/random/setSeeds                       $seed $seed"          >> "${file}"
+echo     "/WCSim/WCgeom                          $geom"                >> "${file}"
+echo     "/WCSim/Construct"                                            >> "${file}"
+echo     "/WCSim/PMTQEMethod                     Stacking_Only"        >> "${file}"
+echo     "/WCSim/PMTCollEff                      on"                   >> "${file}"
+echo     "/WCSim/SavePi0                         false"                >> "${file}"
+echo     "/DAQ/Digitizer                         SKI"                  >> "${file}"
+echo     "/DAQ/Trigger                           NDigits"              >> "${file}"
+echo     "/control/execute                       $daqfile"             >> "${file}"
+echo     "/DarkRate/SetDarkRate                  $darkrate kHz"        >> "${file}"
+echo     "/DarkRate/SetDarkMode                  1"                    >> "${file}"
+echo     "/DarkRate/SetDarkHigh                  100000"               >> "${file}"
+echo     "/DarkRate/SetDarkLow                   0"                    >> "${file}"
+echo     "/DarkRate/SetDarkWindow                4000"                 >> "${file}"
 if [ ! -z $nuance ]; then
-  echo   "/mygen/generator                       muline"               >> $file
-  echo   "/mygen/vecfile                         $nuance"              >> $file
+  echo   "/mygen/generator                       muline"               >> "${file}"
+  echo   "/mygen/vecfile                         $nuance"              >> "${file}"
 else
-  echo   "/mygen/generator                       gps"                  >> $file
-  echo   "/gps/particle                          $pid"                 >> $file
+  echo   "/mygen/generator                       gps"                  >> "${file}"
+  echo   "/gps/particle                          $pid"                 >> "${file}"
   if [ ! -z $Emin ]; then
-    echo "/gps/ene/type                          Lin"                  >> $file
-    echo "/gps/ene/intercept                     1"                    >> $file
-    echo "/gps/ene/min                           $Emin MeV"            >> $file
-    echo "/gps/ene/max                           $Emax MeV"            >> $file
+    echo "/gps/ene/type                          Lin"                  >> "${file}"
+    echo "/gps/ene/intercept                     1"                    >> "${file}"
+    echo "/gps/ene/min                           $Emin MeV"            >> "${file}"
+    echo "/gps/ene/max                           $Emax MeV"            >> "${file}"
   else
-    echo "/gps/energy                            $Emax MeV"            >> $file
+    echo "/gps/energy                            $Emax MeV"            >> "${file}"
   fi
   if [ "$dir" == "fix" ]; then
-    echo "/gps/direction                         $xdir $ydir $zdir"    >> $file
+    echo "/gps/direction                         $xdir $ydir $zdir"    >> "${file}"
   elif [ "$dir" == "2pi" ]; then
-    echo "/gps/ang/type                          iso"                  >> $file
-    echo "/gps/ang/rot1                          1 0 0"                >> $file
-    echo "/gps/ang/rot2                          0 0 1"                >> $file
-    echo "/gps/ang/mintheta                      90  deg"              >> $file
-    echo "/gps/ang/maxtheta                      90  deg"              >> $file
-    echo "/gps/ang/minphi                        0   deg"              >> $file
-    echo "/gps/ang/maxphi                        360 deg"              >> $file
+    echo "/gps/ang/type                          iso"                  >> "${file}"
+    echo "/gps/ang/rot1                          1 0 0"                >> "${file}"
+    echo "/gps/ang/rot2                          0 0 1"                >> "${file}"
+    echo "/gps/ang/mintheta                      90  deg"              >> "${file}"
+    echo "/gps/ang/maxtheta                      90  deg"              >> "${file}"
+    echo "/gps/ang/minphi                        0   deg"              >> "${file}"
+    echo "/gps/ang/maxphi                        360 deg"              >> "${file}"
   elif [ "$dir" == "4pi" ]; then
-    echo "/gps/ang/type                          iso"                  >> $file
+    echo "/gps/ang/type                          iso"                  >> "${file}"
   fi
   if [ "$pos" == "unif" ]; then
-    echo "/gps/pos/type                          Volume"               >> $file
-    echo "/gps/pos/shape                         Cylinder"             >> $file
-    echo "/gps/pos/rot1                          1 0 0"                >> $file
-    echo "/gps/pos/rot2                          0 0 1"                >> $file
-    echo "/gps/pos/radius                        $rpos cm"             >> $file
-    echo "/gps/pos/halfz                         $ypos cm"             >> $file
+    echo "/gps/pos/type                          Volume"               >> "${file}"
+    echo "/gps/pos/shape                         Cylinder"             >> "${file}"
+    echo "/gps/pos/rot1                          1 0 0"                >> "${file}"
+    echo "/gps/pos/rot2                          0 0 1"                >> "${file}"
+    echo "/gps/pos/radius                        $rpos cm"             >> "${file}"
+    echo "/gps/pos/halfz                         $ypos cm"             >> "${file}"
   else
-    echo "/gps/position                          $xpos $ypos $zpos cm" >> $file
+    echo "/gps/position                          $xpos $ypos $zpos cm" >> "${file}"
   fi
 fi
-echo     "/Tracking/fractionOpticalPhotonsToDraw 0.0"                  >> $file
-echo     "/WCSimIO/RootFile                      $rootfile"            >> $file
-echo     "/WCSimIO/SaveRooTracker                0"                    >> $file
-echo     "/run/beamOn                            $nevents"             >> $file
+for proc in "${procs[@]}" ; do
+  echo   "/process/inactivate                    ${proc}"              >> "${file}"
+done
+echo     "/Tracking/fractionOpticalPhotonsToDraw 0.0"                  >> "${file}"
+echo     "/WCSimIO/RootFile                      $rootfile"            >> "${file}"
+echo     "/WCSimIO/SaveRooTracker                0"                    >> "${file}"
+echo     "/run/beamOn                            $nevents"             >> "${file}"
 
