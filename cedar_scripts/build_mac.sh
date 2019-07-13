@@ -149,7 +149,7 @@ else
     echo "/gps/ene/type                          Lin"                  >> "${file}"
     echo "/gps/ene/intercept                     1"                    >> "${file}"
     echo "/gps/ene/min                           $EkinMin MeV"            >> "${file}"
-    echo "/gps/ene/max                           $EKinMax MeV"            >> "${file}"
+    echo "/gps/ene/max                           $EkinMax MeV"            >> "${file}"
   else
     echo "/gps/energy                            $EkinMax MeV"            >> "${file}"
   fi
