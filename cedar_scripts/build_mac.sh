@@ -107,6 +107,21 @@ else
   fi
 fi
 
+if [ -z "${nuance}" ]; then
+  # Calculate Ekin from Evis
+  declare -A Eth
+  Eth[e-]=0.786
+  Eth[e+]=0.786
+  Eth[mu-]=158.7
+  Eth[mu+]=158.7
+  Eth[gamma]="$(python -c "print(2*${Eth[e-]})")"
+  Eth[pi-]=209.7
+  Eth[pi+]=209.7
+  Eth[pi0]="$(python -c "print(2*${Eth[gamma]})")"
+  EkinMax="$(python -c "print(${Emax}+${Eth[${pid}]:-0})")"
+  [ ! -z "${Emin}" ] && EkinMin="$(python -c "print(${Emin}+${Eth[${pid}]:-0})")"
+fi
+
 echo     "/run/verbose                           1"                    > "${file}"
 echo     "/tracking/verbose                      0"                    >> "${file}"
 echo     "/hits/verbose                          0"                    >> "${file}"
@@ -133,10 +148,10 @@ else
   if [ ! -z $Emin ]; then
     echo "/gps/ene/type                          Lin"                  >> "${file}"
     echo "/gps/ene/intercept                     1"                    >> "${file}"
-    echo "/gps/ene/min                           $Emin MeV"            >> "${file}"
-    echo "/gps/ene/max                           $Emax MeV"            >> "${file}"
+    echo "/gps/ene/min                           $EkinMin MeV"            >> "${file}"
+    echo "/gps/ene/max                           $EKinMax MeV"            >> "${file}"
   else
-    echo "/gps/energy                            $Emax MeV"            >> "${file}"
+    echo "/gps/energy                            $EkinMax MeV"            >> "${file}"
   fi
   if [ "$dir" == "fix" ]; then
     echo "/gps/direction                         $xdir $ydir $zdir"    >> "${file}"

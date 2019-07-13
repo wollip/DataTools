@@ -134,19 +134,6 @@ else
 fi
 
 if [ -z "${nuance}" ]; then
-  # Calculate visible Ekin from Evis
-  declare -A Eth
-  Eth[e-]=0.786
-  Eth[e+]=0.786
-  Eth[mu-]=158.7
-  Eth[mu+]=158.7
-  Eth[gamma]="$(python -c "print(2*${Eth[e-]})")"
-  Eth[pi-]=209.7
-  Eth[pi+]=209.7
-  Eth[pi0]="$(python -c "print(2*${Eth[gamma]})")"
-  EkinMax="$(python -c "print(${Emax}+${Eth[${pid}]:-0})")"
-  [ ! -z "${Emin}" ] && EkinMin="$(python -c "print(${Emin}+${Eth[${pid}]:-0})")"
-
   pos_string="${pos}-pos-${xpos:+x${xpos}}${rpos:+R${rpos}}-y${ypos}${zpos:+-z${zpos}}cm"
   dir_string="${dir}-dir${xdir:+-x${xdir}-y${ydir}-z${zdir}}"
   E_string="E${Emin:+${Emin}to}${Emax}MeV"
