@@ -110,14 +110,14 @@ fi
 if [ -z "${nuance}" ]; then
   # Calculate Ekin from Evis
   declare -A Eth
-  Eth[e-]=0.786
-  Eth[e+]=0.786
-  Eth[mu-]=158.7
-  Eth[mu+]=158.7
-  Eth[gamma]="$(python -c "print(2*${Eth[e-]})")"
-  Eth[pi-]=209.7
-  Eth[pi+]=209.7
-  Eth[pi0]="$(python -c "print(2*${Eth[gamma]})")"
+  EKth[e-]=0.264
+  EKth[e+]=0.264
+  EKth[mu-]=54.6
+  EKth[mu+]=54.6
+  EKth[gamma]="$(python -c "print(2*${Eth[e-]})")"
+  EKth[pi-]=72.1
+  EKth[pi+]=72.1
+  EKth[pi0]="$(python -c "print(2*${Eth[gamma]})")"
   EkinMax="$(python -c "print(${Emax}+${Eth[${pid}]:-0})")"
   [ ! -z "${Emin}" ] && EkinMin="$(python -c "print(${Emin}+${Eth[${pid}]:-0})")"
 fi
