@@ -29,6 +29,7 @@
 #          -w z_dir              z direction (for dir_type=fix)
 #          -i process            Geant4 process to inactivate (can be used multiple times)
 #          -F                    also run fiTQun on output
+#          -L                    turn on extra logging (output of WCSim, numpy conversion, etc.)
 
 # exit when any command fails
 set -e
@@ -44,7 +45,7 @@ starttime="`date`"
 # Get positional parameters
 name="$1"
 data_dir="$(readlink -m "$2")"
-opts="n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:i:F"
+opts="n:s:g:r:D:N:E:e:P:p:x:y:z:R:d:u:v:w:i:FL"
 if [ -z "${name}" ] || [[ "${name}" == -[${opts//:}] ]]; then echo "Run name not set"; exit; fi
 if [ -z "${data_dir}" ] || [[ "${data_dir}" == -[${opts//:}]  ]]; then echo "Data directory not set"; exit; fi
 shift 2
@@ -79,6 +80,7 @@ while getopts "$opts" flag; do
     w) zdir="${OPTARG}";;
     i) procs+=("${OPTARG}");;
     F) run_fiTQun=1;;
+    L) logs=1;;
   esac
 done
 
@@ -176,6 +178,7 @@ else
 fi
 
 LOGDIR=${LOGDIR:-"/scratch/${USER}/log/${name}"}
+logfile="/dev/null"
 
 # Create mac file
 macfile="${data_dir}/mac${gamma_conv}/${fullname}.mac"
@@ -185,7 +188,7 @@ echo "[`date`] Creating mac file ${macfile}"
 "$DATATOOLS/cedar_scripts/build_mac.sh" "${args[@]}" -f "${rootfile}" "${macfile}"
 
 # Run WCSim
-logfile="${LOGDIR}/WCSim${gamma_conv}/${fullname}.log"
+[ ! -z "$logs" ] && logfile=${logs"${LOGDIR}/WCSim${gamma_conv}/${fullname}.log"
 echo "[`date`] Running WCSim on ${macfile} output to ${rootfile} log to ${logfile}"
 mkdir -p "$(dirname "${rootfile}")"
 mkdir -p "$(dirname "${logfile}")"
@@ -208,7 +211,7 @@ if [ "${pid}" == "gamma" ]; then
   "${DATATOOLS}/cedar_scripts/build_mac.sh" -n "${nevents}" -s "${seed}" -g "${geom}" -r "${darkrate}" -D "${daqfile}" -N "${nuancefile}" -f "${rootfile}" "${macfile}"
 
   # Run WCSim
-  logfile="${LOGDIR}/WCSim/${fullname}.log"
+  [ ! -z "$logs" ] && logfile="${LOGDIR}/WCSim/${fullname}.log"
   echo "[`date`] Running WCSim on ${macfile} output to ${rootfile} log to ${logfile}"
   mkdir -p "$(dirname "${rootfile}")"
   mkdir -p "$(dirname "${logfile}")"
@@ -217,7 +220,7 @@ if [ "${pid}" == "gamma" ]; then
 fi
 
 npzfile="${data_dir}/numpy/${fullname}.npz"
-logfile="${LOGDIR}/numpy/${fullname}.log"
+[ ! -z "$logs" ] && logfile="${LOGDIR}/numpy/${fullname}.log"
 mkdir -p "$(dirname "${npzfile}")"
 mkdir -p "$(dirname "${logfile}")"
 echo "[`date`] Converting to numpy file ${npzfile} log to ${logfile}"
@@ -226,7 +229,7 @@ python "$DATATOOLS/root_utils/event_dump.py" "${rootfile}" -d "${data_dir}/numpy
 if [ ! -z "${runfiTQun}" ]; then
   echo "[`date`] Running fiTQun on ${rootfile}"
   fitqunfile="${data_dir}/fiTQun/${fullname}.fiTQun.root"
-  logfile="${LOGDIR}/fiTQun/${fullname}.log"
+  [ ! -z "$logs" ] && logfile="${LOGDIR}/fiTQun/${fullname}.log"
   mkdir -p "$(dirname "${fitqunfile}")"
   mkdir -p "$(dirname "${logfile}")"
   echo "running fiTQun not yet available!"
