@@ -75,7 +75,7 @@ echo "export G4WORKDIR=\"${G4WORKDIR}\"" >> "$sourceme"
 echo 'export WCSIMDIR="${G4WORKDIR}"' >> "$sourceme"
 echo "export DATATOOLS=\"${DATATOOLS}\"" >> "$sourceme"
 echo 'export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH:"}${G4LIB}/${G4SYSTEM}' >> "$sourceme"
-echo 'export PYTHONPATH=${PYTHONPATH:+"PYTHONPATH:"}$DATATOOLS' >> "$sourceme"
+echo 'export PYTHONPATH=${PYTHONPATH:+"$PYTHONPATH:"}$DATATOOLS' >> "$sourceme"
 source $sourceme
 
 echo "Compiling WCSim, source $PWD, destination $G4WORKDIR"
