@@ -37,7 +37,7 @@ class WCSim:
         first_trigger_time = 9999999.0
         for index in range(self.ntrigger):
             self.get_trigger(index)
-            trigger_time = min([hit.GetT() for hit in self.trigger.GetCherenkovDigiHits()])
+            trigger_time = self.trigger.GetHeader().GetDate()
             if trigger_time < first_trigger_time:
                 first_trigger_time = trigger_time
                 first_trigger = index
