@@ -50,18 +50,30 @@ if [ "$(git status --porcelain --untracked-files=no)" ]; then
   $EXIT 1
 fi
 
+if [ -z "$ROOTSYS" ]; then
+  echo "ROOTSYS not set, need location of ROOT"
+  cd "$start_dir"
+  $EXIT 1
+fi
+
+if [ -z "$G4INSTALL" ]; then
+  echo "G4INSTALL not set, need location of GEANT4"
+  cd "$start_dir"
+  $EXIT 1
+fi
+
 sourceme="${data_dir}/${name}/sourceme.sh"
 echo "Creating source file $sourceme"
 echo "#!/bin/bash" > "$sourceme"
 echo "module load gcc/4.9.4" >> "$sourceme"
 echo "module load python/3.6.3" >> "$sourceme"
 echo "module load scipy-stack" >> "$sourceme"
-echo "source ${ROOTSYS}/bin/thisroot.sh" >> "$sourceme"
-echo "source $(readlink -f "${G4INSTALL}/../../../bin/geant4.sh")" >> "$sourceme"
-echo "source ${GEANT4INSTALL}/geant4make.sh" >> "$sourceme"
-echo "export G4WORKDIR=${G4WORKDIR}" >> "$sourceme"
-echo 'export WCSIMDIR=${G4WORKDIR}' >> "$sourceme"
-echo "export DATATOOLS=${DATATOOLS}" >> "$sourceme"
+echo "source \"${ROOTSYS}/bin/thisroot.sh\"" >> "$sourceme"
+echo "source \"$(readlink -f "${G4INSTALL}/../../../bin/geant4.sh")\"" >> "$sourceme"
+echo "source \"${G4INSTALL}/geant4make.sh\"" >> "$sourceme"
+echo "export G4WORKDIR=\"${G4WORKDIR}\"" >> "$sourceme"
+echo 'export WCSIMDIR="${G4WORKDIR}"' >> "$sourceme"
+echo "export DATATOOLS=\"${DATATOOLS}\"" >> "$sourceme"
 echo 'export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH:"}${G4LIB}/${G4SYSTEM}' >> "$sourceme"
 echo 'export PYTHONPATH=${PYTHONPATH:+"PYTHONPATH:"}$DATATOOLS' >> "$sourceme"
 source $sourceme
