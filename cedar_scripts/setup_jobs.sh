@@ -14,11 +14,15 @@ name="$1"
 data_dir="$(readlink -m "$2")"
 
 start_dir="$(pwd)"
-cd "$(dirname "${BASH_SOURCE[0]}")"
-cd ..
-export DATATOOLS="$(pwd)"
+if [ -z "$DATATOOLS" ]; then
+  cd "$(dirname "${BASH_SOURCE[0]}")"
+  cd ..
+  echo "DATATOOLS environment variable not set, assuming parent directory of this setup script"
+  export DATATOOLS="$(pwd)"
+fi
 if [ "$(git status --porcelain --untracked-files=no)" ]; then
   echo "DataTools git repository not clean, commit or stash changes first so that version can be traced"
+  cd "$start_dir"
   $EXIT 1
 fi
 
@@ -29,37 +33,58 @@ export G4WORKDIR="$data_dir/$name/WCSim/build"
 mkdir -p "$G4WORKDIR"
 if [ ! -w "$G4WORKDIR" ]; then
   echo "$G4WORKDIR is not writeable. Trying to overwrite previous run? Delete or make directory writable before running this script if you really want to do that."
+  cd "$start_dir"
   $EXIT 1
 fi
 
-echo "Compiling WCSim, source $WCSIMDIR, destination $G4WORKDIR"
+if [ -z "$WCSIMDIR" ]; then
+  echo "WCSIMDIR not set, need location of WCSim"
+  cd "$start_dir"
+  $EXIT 1
+fi
+
 cd "$WCSIMDIR"
 if [ "$(git status --porcelain --untracked-files=no)" ]; then
   echo "WCSim git repository not clean, commit or stash changes first so that version can be traced"
+  cd "$start_dir"
   $EXIT 1
 fi
+
+sourceme="${data_dir}/${name}/sourceme.sh"
+echo "Creating source file $sourceme"
+echo "#!/bin/bash" > "$sourceme"
+echo "module load gcc/4.9.4" >> "$sourceme"
+echo "module load python/3.6.3" >> "$sourceme"
+echo "module load scipy-stack" >> "$sourceme"
+echo "source ${ROOTSYS}/bin/thisroot.sh" >> "$sourceme"
+echo "source $(readlink -f "${G4INSTALL}/../../../bin/geant4.sh")" >> "$sourceme"
+echo "source ${GEANT4INSTALL}/geant4make.sh" >> "$sourceme"
+echo "export G4WORKDIR=${G4WORKDIR}" >> "$sourceme"
+echo 'export WCSIMDIR=${G4WORKDIR}' >> "$sourceme"
+echo "export DATATOOLS=${DATATOOLS}" >> "$sourceme"
+echo 'export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH:"}${G4LIB}/${G4SYSTEM}' >> "$sourceme"
+echo 'export PYTHONPATH=${PYTHONPATH:+"PYTHONPATH:"}$DATATOOLS' >> "$sourceme"
+source $sourceme
+
+echo "Compiling WCSim, source $PWD, destination $G4WORKDIR"
 make clean
 make rootcint
 make -j16
-cp -r "$WCSIMDIR/macros/" "$G4WORKDIR"
-cp -r "$WCSIMDIR/mPMT-configfiles" "$G4WORKDIR"
-cp "$WCSIMDIR/libWCSimRoot.so" "$G4WORKDIR"
-cp "$WCSIMDIR/libWCSim.a" "$G4WORKDIR"
+cp -r macros "$G4WORKDIR"
+cp -r mPMT-configfiles "$G4WORKDIR"
+cp libWCSimRoot.so "$G4WORKDIR"
+cp libWCSim.a "$G4WORKDIR"
 git describe --always --long --tags > "$G4WORKDIR/WCSim-git-describe"
-export WCSIMDIR="$G4WORKDIR"
 # make read-only to prevent accidental write
 chmod -R a-w "$G4WORKDIR"
 
 if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
 # script has been sourced
-  echo "Finished setting up. Environment variables exported:"
+  echo "Finished setting up. Environment set up to run jobs now, or in new shell source the following file then run jobs:"
 else
-  echo "Finished setting up. Export environment variables (or source this script instead of running in subshell):"
+  echo "Finished setting up. Source the following file then run jobs:"
 fi
-echo "export WCSIMDIR=${WCSIMDIR}"
-echo "export G4WORKDIR=${G4WORKDIR}"
-echo "export DATATOOLS=${DATATOOLS}"
-echo "Then run jobs:"
-echo "run_WCSim_job.sh $name $data_dir [options]"
+echo "source ${sourceme}"
+echo "run_WCSim_job.sh ${name} ${data_dir} [options]"
 
-cd $start_dir
+cd "$start_dir"
