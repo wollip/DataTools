@@ -188,7 +188,7 @@ echo "[`date`] Creating mac file ${macfile}"
 "$DATATOOLS/cedar_scripts/build_mac.sh" "${args[@]}" -f "${rootfile}" "${macfile}"
 
 # Run WCSim
-[ ! -z "$logs" ] && logfile=${logs"${LOGDIR}/WCSim${gamma_conv}/${fullname}.log"
+[ ! -z "$logs" ] && logfile="${LOGDIR}/WCSim${gamma_conv}/${fullname}.log"
 echo "[`date`] Running WCSim on ${macfile} output to ${rootfile} log to ${logfile}"
 mkdir -p "$(dirname "${rootfile}")"
 mkdir -p "$(dirname "${logfile}")"
