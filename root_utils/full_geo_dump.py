@@ -7,7 +7,7 @@ ROOT.gROOT.SetBatch(True)
 
 def get_args():
     parser = argparse.ArgumentParser(description='dump geometry data from WCSim into numpy .npz file')
-    parser.add_argument('input_file', type=str, nargs=1)
+    parser.add_argument('input_file', type=str)
     parser.add_argument('output_file', type=str, default=None)
     args = parser.parse_args()
     return args
