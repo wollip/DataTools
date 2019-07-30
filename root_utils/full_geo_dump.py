@@ -28,19 +28,17 @@ def geodump(input_file, output_file):
     num_pmts=geo.GetWCNumPMT()
 
     tube_no = np.zeros(num_pmts, dtype=int)
-    wall = np.zeros(num_pmts, dtype=int)
     position = np.zeros((num_pmts,3))
     orientation = np.zeros((num_pmts,3))
 
     for i in range(num_pmts):
         pmt=geo.GetPMT(i)
         tube_no[i] = pmt.GetTubeNo()
-        wall[i] = pmt.GetCylLoc()
         for j in range(3):
             position[i][j] = pmt.GetPosition(j)
             orientation[i][j] = pmt.GetOrientation(j)
 
-    np.savez_compressed(output_file, tube_no=tube_no, wall=wall, position=position, orientation=orientation)
+    np.savez_compressed(output_file, tube_no=tube_no, position=position, orientation=orientation)
 
 
 if __name__ == '__main__':
