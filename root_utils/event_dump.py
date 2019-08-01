@@ -46,6 +46,9 @@ def dump_file(infile, outfile):
         # if ev%100 == 0:
         #    print("number of sub events: " + str(wcsim.ntrigger))
         direction, energy, pid, position = wcsim.get_truth_info()
+        if len(energy) < 1:
+            print("event", ev, "has no initial particle tracks in WCSim output - can't find truth info!")
+            continue
 
         trigger = wcsim.get_first_trigger()
 
