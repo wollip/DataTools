@@ -1,11 +1,16 @@
 import ROOT
 import os
+import numpy as np
 
 ROOT.gSystem.Load(os.environ['WCSIMDIR'] + "/libWCSimRoot.so")
 
 
 class WCSim:
     def __init__(self, tree):
+        print("number of entries in the geometry tree: " + str(self.geotree.GetEntries()))
+        self.geotree.GetEntry(0)
+        self.geo = self.geotree.wcsimrootgeom
+        self.num_pmts = self.geo.GetWCNumPMT()
         self.tree = tree
         self.nevent = self.tree.GetEntries()
         print("number of entries in the tree: " + str(self.nevent))
@@ -59,16 +64,77 @@ class WCSim:
                 energy.append(tracks[i].GetE())
         return direction, energy, pid, position
 
+    def get_digitized_hits(self):
+        nhits = self.trigger.GetNcherenkovdigihits()
+        hits = {
+            "position": np.zeros((nhits,3)),
+            "charge": np.zeros(nhits),
+            "time": np.zeros(nhits),
+            "pmt": np.zeros(nhits, dtype=np.int32)
+        }
+        for i in range(nhits):
+            hit = self.trigger.GetCherenkovDigiHits().At(i)
+            pmt_id = hit.GetTubeId() - 1
+            pmt = self.geo.GetPMT(pmt_id)
+            hits["position"][i] = [pmt.GetPosition(j) for j in range(3)]
+            hits["charge"][i] = hit.GetQ()
+            hits["time"][i] = hit.GetT()
+            hits["pmt"][i] = pmt_id
+        return hits
+
+    def get_true_hits(self):
+        nhits = self.trigger.GetNcherenkovhits()
+        hits = {
+            "position": np.zeros((nhits,3)),
+            "track" : np.zeros(nhits),
+            "pmt": np.zeros(nhits, dtype=np.int32),
+            "PE": np.zeros(nhits)
+        }
+        for i in range(nhits):
+            hit = self.trigger.GetCherenkovHits().At(i)
+            pmt_id = hit.GetTubeID() - 1
+            pmt = self.geo.GetPMT(pmt_id)
+            tracks = set()
+            for j in range(hit.GetTotalPe(0), hit.GetTotalPe(0)+hit.GetTotalPe(1)):
+                pe = self.trigger.GetCherenkovHitTimes().At(j)
+                tracks.add(pe.GetParentID())
+            hits["position"][i] = [pmt.GetPosition(k) for k in range(3)]
+            hits["track"][i] = tracks.pop() if len(tracks) == 1 else -2
+            hits["pmt"][i] = pmt_id
+            hits["PE"][i] = hit.GetTotalPe(1)
+
+        return hits
+
+    def get_hit_photons(self):
+        nphotons = self.trigger.GetNcherenkovhittimes()
+        photons = {
+            "start_position": np.zeros((nphotons,3)),
+            "end_position": np.zeros((nphotons,3)),
+            "start_time": np.zeros(nphotons),
+            "end_time": np.zeros(nphotons),
+            "track": np.zeros(nphotons, dtype=np.int32),
+            "pmt": np.zeros(nphotons, dtype=np.int32)
+        }
+        i = 0
+        for hit in self.trigger.GetCherenkovHits():
+            pmt_id = hit.GetTubeID() - 1
+            for j in range(hit.GetTotalPe(0), hit.GetTotalPe(0)+hit.GetTotalPe(1)):
+                pe = self.trigger.GetCherenkovHitTimes().At(j)
+                photons["start_position"][i] = [pe.GetPhotonStartPos(j)/10 for j in range(3)]
+                photons["end_position"][i] = [pe.GetPhotonEndPos(j)/10 for j in range(3)]
+                photons["start_time"][i] = pe.GetPhotonStartTime()
+                photons["end_time"][i] = pe.GetTruetime()
+                photons["track"][i] = pe.GetParentID()
+                photons["pmt"][i] = pmt_id
+                i += 1
+        return photons
+
 
 class WCSimFile(WCSim):
     def __init__(self, filename):
         self.file = ROOT.TFile(filename, "read")
         tree = self.file.Get("wcsimT")
         self.geotree = self.file.Get("wcsimGeoT")
-        print("number of entries in the geometry tree: " + str(self.geotree.GetEntries()))
-        self.geotree.GetEntry(0)
-        self.geo = self.geotree.wcsimrootgeom
-        self.num_pmts = self.geo.GetWCNumPMT()
         super().__init__(tree)
 
     def __del__(self):
@@ -80,6 +146,8 @@ class WCSimChain(WCSim):
         self.chain = ROOT.TChain("wcsimT")
         for file in filenames:
             self.chain.Add(file)
+        self.file = self.GetFile()
+        self.geotree = self.file.Get("wcsimGeoT")
         super().__init__(self.chain)
 
 def get_label(infile):
