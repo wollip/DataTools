@@ -14,6 +14,7 @@ from root_utils.pos_utils import *
 
 ROOT.gROOT.SetBatch(True)
 
+
 def get_args():
     parser = argparse.ArgumentParser(description='dump WCSim data into numpy .npz file')
     parser.add_argument('input_files', type=str, nargs='+')
