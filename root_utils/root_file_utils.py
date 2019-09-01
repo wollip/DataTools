@@ -56,9 +56,8 @@ class WCSim:
         direction = []
         pid = []
         for i in range(self.trigger.GetNtrack()):
-            if tracks[i].GetParenttype() == 0 and tracks[i].GetFlag() == 0 and 
-               tracks[i].GetIpnu() in [22, 11, -11, 13, -13, 111] or 
-               (tracks[i].GetIpnu() == 22 and tracks[i].GetFlag() == -1):  # Hack to save initial gamma info
+            if tracks[i].GetParenttype() == 0 and tracks[i].GetFlag() == 0 and tracks[i].GetIpnu() in [22, 11, -11, 13,
+                                                                                                       -13, 111]:
                 pid.append(tracks[i].GetIpnu())
                 position.append([tracks[i].GetStart(0), tracks[i].GetStart(1), tracks[i].GetStart(2)])
                 direction.append([tracks[i].GetDir(0), tracks[i].GetDir(1), tracks[i].GetDir(2)])
