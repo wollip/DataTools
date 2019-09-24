@@ -83,16 +83,21 @@ void DumpGammaConvProducts(char * infile, char * outfile, int total, char * dir,
     }
     if(!strcmp(dir, "2pi")){
       double angle = r->Uniform(TMath::Pi()*2);
+      TVector3 gammaDir(dirx[gamma], diry[gamma], dirz[gamma]);
       TVector3 electronDir(dirx[electron], diry[electron], dirz[electron]);
       TVector3 positronDir(dirx[positron], diry[positron], dirz[positron]);
+      gammaDir.RotateY(angle);
       electronDir.RotateY(angle);
       positronDir.RotateY(angle);
+      dirx[gamma] = gammaDir.X();
+      dirz[gamma] = gammaDir.Z();
       dirx[electron] = electronDir.X();
       dirz[electron] = electronDir.Z();
       dirx[positron] = positronDir.X();
       dirz[positron] = positronDir.Z();
     }
     else if (!strcmp(dir, "4pi")){
+      TVector3 gammaDir(dirx[gamma], diry[gamma], dirz[gamma]);
       TVector3 electronDir(dirx[electron], diry[electron], dirz[electron]);
       TVector3 positronDir(dirx[positron], diry[positron], dirz[positron]);
       // I think this performs a uniform random rotation... it's a harder problem than first appears
@@ -103,12 +108,17 @@ void DumpGammaConvProducts(char * infile, char * outfile, int total, char * dir,
       TVector3 xDir(1,0,0);
       TVector3 axis = xDir.Cross(randDir);
       double angle = xDir.Angle(randDir);
+      gammaDir.Rotate(angle, axis);
       electronDir.Rotate(angle, axis);
       positronDir.Rotate(angle, axis);
       // Now rotate uniform random angle about the random direction
       angle = r->Uniform(TMath::Pi()*2);
+      gammaDir.Rotate(angle, randDir);
       electronDir.Rotate(angle, randDir);
       positronDir.Rotate(angle, randDir);
+      dirx[gamma] = gammaDir.X();
+      diry[gamma] = gammaDir.Y();
+      dirz[gamma] = gammaDir.Z();
       dirx[electron] = electronDir.X();
       diry[electron] = electronDir.Y();
       dirz[electron] = electronDir.Z();
@@ -119,7 +129,7 @@ void DumpGammaConvProducts(char * infile, char * outfile, int total, char * dir,
     out << "$ begin" << endl;
     out << "$ nuance " << 0 << endl;
     out << "$ vertex " << x << " " << y << " " << z << " 0" << endl;
-    out << "$ track 12 0 1 0 0 -1" << endl; // dummy neutrino
+    out << "$ track 22 " << p[gamma] << " " << dirx[gamma] << " " << diry[gamma] << " " << dirz[gamma] << " -1" << endl; // Initial gamma
     out << "$ track 2212 0 0 0 0 -1" << endl; // dummy target
     out << "$ info 0 " << N << endl;
     out << "$ track 11 " << electronE << " " << dirx[electron] << " " << diry[electron] << " " << dirz[electron] << " 0" << endl;
