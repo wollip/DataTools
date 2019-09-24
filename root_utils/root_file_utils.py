@@ -65,68 +65,87 @@ class WCSim:
         return direction, energy, pid, position
 
     def get_digitized_hits(self):
-        nhits = self.trigger.GetNcherenkovdigihits()
+        position = []
+        charge = []
+        time = []
+        pmt = []
+        trigger = []
+        for t in range(self.ntrigger):
+            self.get_trigger(t)
+            for hit in self.trigger.GetCherenkovDigiHits():
+                pmt_id = hit.GetTubeId() - 1
+                position.append([self.geo.GetPMT(pmt_id).GetPosition(j) for j in range(3)])
+                charge.append(hit.GetQ())
+                time.append(hit.GetT())
+                pmt.append(pmt_id)
+                trigger.append(t)
         hits = {
-            "position": np.zeros((nhits,3)),
-            "charge": np.zeros(nhits),
-            "time": np.zeros(nhits),
-            "pmt": np.zeros(nhits, dtype=np.int32)
+            "position": np.asarray(position),
+            "charge": np.asarray(charge),
+            "time": np.asarray(time),
+            "pmt": np.asarray(pmt, dtype=np.int32),
+            "trigger": np.asarray(trigger, dtype=np.int32)
         }
-        for i in range(nhits):
-            hit = self.trigger.GetCherenkovDigiHits().At(i)
-            pmt_id = hit.GetTubeId() - 1
-            pmt = self.geo.GetPMT(pmt_id)
-            hits["position"][i] = [pmt.GetPosition(j) for j in range(3)]
-            hits["charge"][i] = hit.GetQ()
-            hits["time"][i] = hit.GetT()
-            hits["pmt"][i] = pmt_id
         return hits
 
     def get_true_hits(self):
-        nhits = self.trigger.GetNcherenkovhits()
+        position = []
+        track = []
+        pmt = []
+        PE = []
+        trigger = []
+        for t in range(self.ntrigger):
+            self.get_trigger(t)
+            for hit in self.trigger.GetCherenkovHits():
+                pmt_id = hit.GetTubeID() - 1
+                tracks = set()
+                for j in range(hit.GetTotalPe(0), hit.GetTotalPe(0)+hit.GetTotalPe(1)):
+                    pe = self.trigger.GetCherenkovHitTimes().At(j)
+                    tracks.add(pe.GetParentID())
+                position.append([self.geo.GetPMT(pmt_id).GetPosition(k) for k in range(3)])
+                track.append(tracks.pop() if len(tracks) == 1 else -2)
+                pmt.append(pmt_id)
+                PE.append(hit.GetTotalPe(1))
+                trigger.append(t)
         hits = {
-            "position": np.zeros((nhits,3)),
-            "track" : np.zeros(nhits),
-            "pmt": np.zeros(nhits, dtype=np.int32),
-            "PE": np.zeros(nhits)
+            "position": np.asarray(position),
+            "track" : np.asarray(track),
+            "pmt": np.asarray(pmt, dtype=np.int32),
+            "PE": np.asarray(PE),
+            "trigger": np.asarray(trigger)
         }
-        for i in range(nhits):
-            hit = self.trigger.GetCherenkovHits().At(i)
-            pmt_id = hit.GetTubeID() - 1
-            pmt = self.geo.GetPMT(pmt_id)
-            tracks = set()
-            for j in range(hit.GetTotalPe(0), hit.GetTotalPe(0)+hit.GetTotalPe(1)):
-                pe = self.trigger.GetCherenkovHitTimes().At(j)
-                tracks.add(pe.GetParentID())
-            hits["position"][i] = [pmt.GetPosition(k) for k in range(3)]
-            hits["track"][i] = tracks.pop() if len(tracks) == 1 else -2
-            hits["pmt"][i] = pmt_id
-            hits["PE"][i] = hit.GetTotalPe(1)
-
         return hits
 
     def get_hit_photons(self):
-        nphotons = self.trigger.GetNcherenkovhittimes()
+        start_position = []
+        end_position = []
+        start_time = []
+        end_time = []
+        track = []
+        pmt = []
+        trigger = []
+        for t in range(self.ntrigger):
+            self.get_trigger(t)
+            for hit in self.trigger.GetCherenkovHits():
+                pmt_id = hit.GetTubeID() - 1
+                for j in range(hit.GetTotalPe(0), hit.GetTotalPe(0)+hit.GetTotalPe(1)):
+                    pe = self.trigger.GetCherenkovHitTimes().At(j)
+                    start_position.append([pe.GetPhotonStartPos(j)/10 for j in range(3)])
+                    end_position.append([pe.GetPhotonEndPos(j)/10 for j in range(3)])
+                    start_time.append(pe.GetPhotonStartTime())
+                    end_time.append(pe.GetTruetime())
+                    track.append(pe.GetParentID())
+                    pmt.append(pmt_id)
+                    trigger.append(t)
         photons = {
-            "start_position": np.zeros((nphotons,3)),
-            "end_position": np.zeros((nphotons,3)),
-            "start_time": np.zeros(nphotons),
-            "end_time": np.zeros(nphotons),
-            "track": np.zeros(nphotons, dtype=np.int32),
-            "pmt": np.zeros(nphotons, dtype=np.int32)
+            "start_position": np.asarray(start_position),
+            "end_position": np.asarray(end_position),
+            "start_time": np.asarray(start_time),
+            "end_time": np.asarray(end_time),
+            "track": np.asarray(track, dtype=np.int32),
+            "pmt": np.asarray(pmt, dtype=np.int32),
+            "trigger": np.asarray(trigger, dtype=np.int32)
         }
-        i = 0
-        for hit in self.trigger.GetCherenkovHits():
-            pmt_id = hit.GetTubeID() - 1
-            for j in range(hit.GetTotalPe(0), hit.GetTotalPe(0)+hit.GetTotalPe(1)):
-                pe = self.trigger.GetCherenkovHitTimes().At(j)
-                photons["start_position"][i] = [pe.GetPhotonStartPos(j)/10 for j in range(3)]
-                photons["end_position"][i] = [pe.GetPhotonEndPos(j)/10 for j in range(3)]
-                photons["start_time"][i] = pe.GetPhotonStartTime()
-                photons["end_time"][i] = pe.GetTruetime()
-                photons["track"][i] = pe.GetParentID()
-                photons["pmt"][i] = pmt_id
-                i += 1
         return photons
 
 
