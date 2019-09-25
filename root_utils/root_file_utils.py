@@ -48,7 +48,7 @@ class WCSim:
                 first_trigger = index
         return self.get_trigger(first_trigger)
 
-    def get_truth_info(self):
+    def get_truth_info(self): # deprecated: should now use get_event_info instead, leaving here for use with old files
         self.get_trigger(0)
         tracks = self.trigger.GetTracks()
         energy = []
@@ -63,6 +63,38 @@ class WCSim:
                 direction.append([tracks[i].GetDir(0), tracks[i].GetDir(1), tracks[i].GetDir(2)])
                 energy.append(tracks[i].GetE())
         return direction, energy, pid, position
+
+    def get_event_info(self):
+        self.get_trigger(0)
+        tracks = self.trigger.GetTracks()
+        primaries = [t for t in tracks if t.GetFlag() == 0 and t.GetParentType() == 0]
+        # Only one primary, this is the particle being simulated:
+        if len(primaries) == 1:
+            return {
+                "pid": primaries[0].GetIpnu(),
+                "position": [primaries[0].GetStart(i) for i in range(3)],
+                "direction": [primaries[0].GetDir(i) for i in range(3)],
+                "energy": primaries[0].GetE()
+            }
+        # Otherwise check for single incoming particle with flag -1:
+        incoming = [t for t in tracks if t.GetFlag() == -1]
+        if len(incoming) == 1:
+            return {
+                "pid": incoming[0].GetIpnu(),
+                "position": [incoming[0].GetStart(i) for i in range(3)],
+                "direction": [incoming[0].GetDir(i) for i in range(3)],
+                "energy": incoming[0].GetE()
+            }
+        # Otherwise should be a positron/electron pair from a gamma simulation (temporary hack until gamma truth saved)
+        if len(primaries) == 2 and abs(primaries[0].GetIpnu()) == 11 and abs(primaries[1].GetIpnu()) == 11:
+            momentum = [sum(p.GetDir(i)*p.GetP() for p in primaries) for i in range(3)]
+            norm = np.sqrt(sum(p**2 for p in momentum))
+            return{
+                "pid": 22,
+                "position": [primaries[0].GetStart(i) for i in range(3)], # e+ / e- should have same position
+                "direction": [p/norm for p in momentum],
+                "energy": sum(p.GetE() for p in primaries)
+            }
 
     def get_digitized_hits(self):
         position = []
