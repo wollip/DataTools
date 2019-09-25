@@ -68,34 +68,42 @@ class WCSim:
     def get_event_info(self):
         self.get_trigger(0)
         tracks = self.trigger.GetTracks()
-        primaries = [t for t in tracks if t.GetFlag() == 0 and t.GetParenttype() == 0]
-        # Only one primary, this is the particle being simulated:
-        if len(primaries) == 1:
+        # Single particle with flag -1 is the incoming neutrino or gamma
+        particles = [t for t in tracks if t.GetFlag() == -1]
+        # Check if it's the dummy neutrino from old gamma simulations:
+        if len(particles) == 1 and particles[0].GetIpnu() == 12 and particles[0].GetE() < 0.0001:
+            # Should be a positron/electron pair from a gamma simulation (temporary hack since no gamma truth saved)
+            particles = [t for t in tracks if t.GetFlag() == 0 and t.GetParenttype() == 0]
+            if len(particles) == 2 and abs(particles[0].GetIpnu()) == 11 and abs(particles[1].GetIpnu()) == 11:
+                momentum = [sum(p.GetDir(i) * p.GetP() for p in particles) for i in range(3)]
+                norm = np.sqrt(sum(p ** 2 for p in momentum))
+                return {
+                    "pid": 22,
+                    "position": [particles[0].GetStart(i) for i in range(3)],  # e+ / e- should have same position
+                    "direction": [p / norm for p in momentum],
+                    "energy": sum(p.GetE() for p in particles)
+                }
+        # Check there is exactly one particle with flag -1:
+        if len(particles) != 1:
+            # Look for one primary instead (flag 0 and parenttype 0)
+            particles = [t for t in tracks if t.GetFlag() == 0 and t.GetParenttype() == 0]
+        if len(particles) == 1:
+            # Only one primary, this is the particle being simulated
             return {
-                "pid": primaries[0].GetIpnu(),
-                "position": [primaries[0].GetStart(i) for i in range(3)],
-                "direction": [primaries[0].GetDir(i) for i in range(3)],
-                "energy": primaries[0].GetE()
+                "pid": particles[0].GetIpnu(),
+                "position": [particles[0].GetStart(i) for i in range(3)],
+                "direction": [particles[0].GetDir(i) for i in range(3)],
+                "energy": particles[0].GetE()
             }
-        # Otherwise check for single incoming particle with flag -1:
-        incoming = [t for t in tracks if t.GetFlag() == -1]
-        if len(incoming) == 1:
-            return {
-                "pid": incoming[0].GetIpnu(),
-                "position": [incoming[0].GetStart(i) for i in range(3)],
-                "direction": [incoming[0].GetDir(i) for i in range(3)],
-                "energy": incoming[0].GetE()
-            }
-        # Otherwise should be a positron/electron pair from a gamma simulation (temporary hack until gamma truth saved)
-        if len(primaries) == 2 and abs(primaries[0].GetIpnu()) == 11 and abs(primaries[1].GetIpnu()) == 11:
-            momentum = [sum(p.GetDir(i)*p.GetP() for p in primaries) for i in range(3)]
-            norm = np.sqrt(sum(p**2 for p in momentum))
-            return{
-                "pid": 22,
-                "position": [primaries[0].GetStart(i) for i in range(3)],  # e+ / e- should have same position
-                "direction": [p/norm for p in momentum],
-                "energy": sum(p.GetE() for p in primaries)
-            }
+        # Otherwise something else is going on... guess info from the primaries
+        momentum = [sum(p.GetDir(i) * p.GetP() for p in particles) for i in range(3)]
+        norm = np.sqrt(sum(p ** 2 for p in momentum))
+        return {
+            "pid": 0,  # there's more than one particle so use pid 0
+            "position": [sum(p.GetStart(i) for p in particles)/len(particles) for i in range(3)],  # average position
+            "direction": [p / norm for p in momentum],  # direction of sum of momenta
+            "energy": sum(p.GetE() for p in particles)  # sum of energies
+        }
 
     def get_digitized_hits(self):
         position = []
