@@ -202,6 +202,7 @@ class WCSim:
         start_position = []
         stop_position = []
         parent = []
+        flag = []
         for t in range(self.ntrigger):
             self.get_trigger(t)
             for track in self.trigger.GetTracks():
@@ -212,6 +213,7 @@ class WCSim:
                 start_position.append([track.GetStart(i) for i in range(3)])
                 stop_position.append([track.GetStop(i) for i in range(3)])
                 parent.append(track.GetParenttype())
+                flag.append(track.GetFlag())
         tracks = {
             "id": np.asarray(id, dtype=np.int32),
             "pid": np.asarray(pid, dtype=np.int32),
@@ -219,7 +221,8 @@ class WCSim:
             "energy": np.asarray(energy, dtype=np.float32),
             "start_position": np.asarray(start_position, dtype=np.float32),
             "stop_position": np.asarray(stop_position, dtype=np.float32),
-            "parent": np.asarray(parent, dtype=np.int32)
+            "parent": np.asarray(parent, dtype=np.int32),
+            "flag": np.asarray(parent, dtype=np.int32)
         }
         return tracks
 

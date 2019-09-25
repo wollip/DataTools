@@ -56,6 +56,7 @@ def dump_file(infile, outfile):
     track_start_position = np.empty(nevents, dtype=object)
     track_stop_position = np.empty(nevents, dtype=object)
     track_parent = np.empty(nevents, dtype=object)
+    track_flag = np.empty(nevents, dtype=object)
 
     trigger_times = np.empty(nevents, dtype=object)
 
@@ -90,6 +91,7 @@ def dump_file(infile, outfile):
         track_start_position[ev] = tracks["start_position"]
         track_stop_position[ev] = tracks["stop_position"]
         track_parent[ev] = tracks["parent"]
+        track_flag[ev] = tracks["flag"]
 
         trigger_times[ev] = wcsim.get_trigger_times()
 
@@ -120,6 +122,7 @@ def dump_file(infile, outfile):
                         track_start_position=track_start_position,
                         track_stop_position=track_stop_position,
                         track_parent=track_parent,
+                        track_flag=track_flag,
                         trigger_times=trigger_times
                         )
     del wcsim
