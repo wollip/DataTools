@@ -112,9 +112,9 @@ class WCSim:
                 pmt.append(pmt_id)
                 trigger.append(t)
         hits = {
-            "position": np.asarray(position),
-            "charge": np.asarray(charge),
-            "time": np.asarray(time),
+            "position": np.asarray(position, dtype=np.float32),
+            "charge": np.asarray(charge, dtype=np.float32),
+            "time": np.asarray(time, dtype=np.float32),
             "pmt": np.asarray(pmt, dtype=np.int32),
             "trigger": np.asarray(trigger, dtype=np.int32)
         }
@@ -140,11 +140,11 @@ class WCSim:
                 PE.append(hit.GetTotalPe(1))
                 trigger.append(t)
         hits = {
-            "position": np.asarray(position),
-            "track" : np.asarray(track),
+            "position": np.asarray(position, dtype=np.float32),
+            "track" : np.asarray(track, dtype=np.int32),
             "pmt": np.asarray(pmt, dtype=np.int32),
-            "PE": np.asarray(PE),
-            "trigger": np.asarray(trigger)
+            "PE": np.asarray(PE, dtype=np.int32),
+            "trigger": np.asarray(trigger, dtype=np.int32)
         }
         return hits
 
@@ -170,10 +170,10 @@ class WCSim:
                     pmt.append(pmt_id)
                     trigger.append(t)
         photons = {
-            "start_position": np.asarray(start_position),
-            "end_position": np.asarray(end_position),
-            "start_time": np.asarray(start_time),
-            "end_time": np.asarray(end_time),
+            "start_position": np.asarray(start_position, dtype=np.float32),
+            "end_position": np.asarray(end_position, dtype=np.float32),
+            "start_time": np.asarray(start_time, dtype=np.float32),
+            "end_time": np.asarray(end_time, dtype=np.float32),
             "track": np.asarray(track, dtype=np.int32),
             "pmt": np.asarray(pmt, dtype=np.int32),
             "trigger": np.asarray(trigger, dtype=np.int32)
@@ -201,16 +201,16 @@ class WCSim:
         tracks = {
             "id": np.asarray(id, dtype=np.int32),
             "pid": np.asarray(pid, dtype=np.int32),
-            "start_time": np.asarray(start_time),
-            "energy": np.asarray(energy),
-            "start_position": np.asarray(start_position),
-            "stop_position": np.asarray(stop_position),
-            "parent": np.asarray(parent)
+            "start_time": np.asarray(start_time, dtype=np.float32),
+            "energy": np.asarray(energy, dtype=np.float32),
+            "start_position": np.asarray(start_position, dtype=np.float32),
+            "stop_position": np.asarray(stop_position, dtype=np.float32),
+            "parent": np.asarray(parent, dtype=np.int32)
         }
         return tracks
 
     def get_trigger_times(self):
-        trigger_times = np.empty(self.ntrigger)
+        trigger_times = np.empty(self.ntrigger, dtype=np.float32)
         for t in range(self.ntrigger):
             self.get_trigger(t)
             trigger_times[t] = self.trigger.GetHeader().GetDate()
