@@ -68,7 +68,7 @@ class WCSim:
     def get_event_info(self):
         self.get_trigger(0)
         tracks = self.trigger.GetTracks()
-        primaries = [t for t in tracks if t.GetFlag() == 0 and t.GetParentType() == 0]
+        primaries = [t for t in tracks if t.GetFlag() == 0 and t.GetParenttype() == 0]
         # Only one primary, this is the particle being simulated:
         if len(primaries) == 1:
             return {
