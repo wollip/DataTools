@@ -222,7 +222,7 @@ class WCSim:
             "start_position": np.asarray(start_position, dtype=np.float32),
             "stop_position": np.asarray(stop_position, dtype=np.float32),
             "parent": np.asarray(parent, dtype=np.int32),
-            "flag": np.asarray(parent, dtype=np.int32)
+            "flag": np.asarray(flag, dtype=np.int32)
         }
         return tracks
 
