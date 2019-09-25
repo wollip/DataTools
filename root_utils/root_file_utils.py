@@ -148,6 +148,42 @@ class WCSim:
         }
         return photons
 
+    def get_tracks(self):
+        id = []
+        pid = []
+        start_time = []
+        energy = []
+        start_position = []
+        stop_position = []
+        parent = []
+        for t in range(self.ntrigger):
+            self.get_trigger(t)
+            for track in self.trigger.GetTracks():
+                id.append(track.GetId())
+                pid.append(track.GetIpnu())
+                start_time.append(track.GetTime())
+                energy.append(track.GetE())
+                start_position.append([track.GetStart(i) for i in range(3)])
+                stop_position.append([track.GetStop(i) for i in range(3)])
+                parent.append(track.GetParenttype())
+        tracks = {
+            "id": np.asarray(id, dtype=np.int32),
+            "pid": np.asarray(pid, dtype=np.int32),
+            "start_time": np.asarray(start_time),
+            "energy": np.asarray(energy),
+            "start_position": np.asarray(start_position),
+            "stop_position": np.asarray(stop_position),
+            "parent": np.asarray(parent)
+        }
+        return tracks
+
+    def get_trigger_times(self):
+        trigger_times = np.empty(self.ntrigger)
+        for t in range(self.ntrigger):
+            self.get_trigger(t)
+            trigger_times[t] = self.trigger.GetHeader().GetDate()
+        return trigger_times
+
 
 class WCSimFile(WCSim):
     def __init__(self, filename):
