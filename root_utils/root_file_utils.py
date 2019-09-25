@@ -27,7 +27,8 @@ class WCSim:
         triggers = [self.event.GetTrigger(i) for i in range(self.ntrigger)]
         oldfile = self.tree.GetCurrentFile()
         self.tree.GetEvent(ev)
-        if self.tree.GetCurrentFile() == oldfile: [t.Delete() for t in triggers]
+        if self.tree.GetCurrentFile() == oldfile:
+            [t.Delete() for t in triggers]
         self.current_event = ev
         self.event = self.tree.wcsimrootevent
         self.ntrigger = self.event.GetNumberOfEvents()
@@ -48,7 +49,7 @@ class WCSim:
                 first_trigger = index
         return self.get_trigger(first_trigger)
 
-    def get_truth_info(self): # deprecated: should now use get_event_info instead, leaving here for use with old files
+    def get_truth_info(self):  # deprecated: should now use get_event_info instead, leaving here for use with old files
         self.get_trigger(0)
         tracks = self.trigger.GetTracks()
         energy = []
@@ -91,7 +92,7 @@ class WCSim:
             norm = np.sqrt(sum(p**2 for p in momentum))
             return{
                 "pid": 22,
-                "position": [primaries[0].GetStart(i) for i in range(3)], # e+ / e- should have same position
+                "position": [primaries[0].GetStart(i) for i in range(3)],  # e+ / e- should have same position
                 "direction": [p/norm for p in momentum],
                 "energy": sum(p.GetE() for p in primaries)
             }
@@ -141,7 +142,7 @@ class WCSim:
                 trigger.append(t)
         hits = {
             "position": np.asarray(position, dtype=np.float32),
-            "track" : np.asarray(track, dtype=np.int32),
+            "track": np.asarray(track, dtype=np.int32),
             "pmt": np.asarray(pmt, dtype=np.int32),
             "PE": np.asarray(PE, dtype=np.int32),
             "trigger": np.asarray(trigger, dtype=np.int32)
@@ -162,9 +163,14 @@ class WCSim:
                 pmt_id = hit.GetTubeID() - 1
                 for j in range(hit.GetTotalPe(0), hit.GetTotalPe(0)+hit.GetTotalPe(1)):
                     pe = self.trigger.GetCherenkovHitTimes().At(j)
-                    start_position.append([pe.GetPhotonStartPos(j)/10 for j in range(3)])
-                    end_position.append([pe.GetPhotonEndPos(j)/10 for j in range(3)])
-                    start_time.append(pe.GetPhotonStartTime())
+                    try:  # Only works with new tracking branch of WCSim
+                        start_position.append([pe.GetPhotonStartPos(j)/10 for j in range(3)])
+                        end_position.append([pe.GetPhotonEndPos(j)/10 for j in range(3)])
+                        start_time.append(pe.GetPhotonStartTime())
+                    except AttributeError:
+                        start_position.append([0, 0, 0])
+                        end_position.append([0, 0, 0])
+                        start_time.append(0)
                     end_time.append(pe.GetTruetime())
                     track.append(pe.GetParentID())
                     pmt.append(pmt_id)
