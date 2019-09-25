@@ -83,13 +83,13 @@ def dump_file(infile, outfile):
         digi_hit_trigger[ev] = digi_hits["trigger"]
 
         tracks = wcsim.get_tracks()
-        track_id[ev] = tracks["track_id"]
-        track_pid[ev] = tracks["track_pid"]
-        track_start_time[ev] = tracks["track_start_time"]
-        track_energy[ev] = tracks["track_energy"]
-        track_start_position[ev] = tracks["track_start_position"]
-        track_stop_position[ev] = tracks["track_stop_position"]
-        track_parent[ev] = tracks["track_parent"]
+        track_id[ev] = tracks["id"]
+        track_pid[ev] = tracks["pid"]
+        track_start_time[ev] = tracks["start_time"]
+        track_energy[ev] = tracks["energy"]
+        track_start_position[ev] = tracks["start_position"]
+        track_stop_position[ev] = tracks["stop_position"]
+        track_parent[ev] = tracks["parent"]
 
         trigger_times[ev] = wcsim.get_trigger_times()
 
