@@ -33,9 +33,9 @@ def dump_file(infile, outfile):
     root_file = np.empty(nevents, dtype=object)
 
     pid = np.empty(nevents, dtype=np.int32)
-    position = np.empty((nevents, 3), dtype=np.float32)
-    direction = np.empty((nevents, 3), dtype=np.float32)
-    energy = np.empty(nevents,dtype=np.float32)
+    position = np.empty((nevents, 3), dtype=np.float64)
+    direction = np.empty((nevents, 3), dtype=np.float64)
+    energy = np.empty(nevents,dtype=np.float64)
 
     digi_hit_pmt = np.empty(nevents, dtype=object)
     digi_hit_charge = np.empty(nevents, dtype=object)
